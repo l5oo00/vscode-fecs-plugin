@@ -1,0 +1,83 @@
+{
+  "name": "vscode-fecs-plugin",
+  "displayName": "vscode-fecs-plugin",
+  "description": "",
+  "version": "0.0.1",
+  "publisher": "l5oo00",
+  "engines": {
+    "vscode": "^1.12.0"
+  },
+  "categories": [
+    "Linters"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./src/extension",
+  "contributes": {
+    "configuration": {
+      "title": "vscode-fecs-plugin configuration",
+      "properties": {
+        "vscode-fecs-plugin.en": {
+          "default": false,
+          "title": "Fecs use English in output",
+          "type": "boolean",
+          "description": "Controls if use English in output"
+        },
+        "vscode-fecs-plugin.level": {
+          "default": 0,
+          "title": "Fecs check level",
+          "type": "number",
+          "description": "Fecs check level. Value is 0 1 or 2"
+        },
+        "vscode-fecs-plugin.jsLikeExt": {
+          "default": [
+            "js",
+            "jsx",
+            "es",
+            "es6",
+            "vue",
+            "san"
+          ],
+          "title": "Fecs files with these extensions",
+          "type": "array",
+          "description": "Specified 'js like' files extension that can use fecs."
+        },
+        "vscode-fecs-plugin.cssLikeExt": {
+          "default": [
+            "css",
+            "less"
+          ],
+          "title": "Fecs files with these extensions",
+          "type": "array",
+          "description": "Specified 'css like' files extension that can use fecs."
+        },
+        "vscode-fecs-plugin.htmlLikeExt": {
+          "default": [
+            "html",
+            "htm",
+            "tpl"
+            ],
+          "title": "Fecs files with these extensions",
+          "type": "array",
+          "description": "Specified 'html like' files extension that can use fecs."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0",
+    "mocha": "^2.3.3",
+    "eslint": "^3.6.0",
+    "@types/node": "^6.0.40",
+    "@types/mocha": "^2.2.32"
+  },
+  "dependencies": {
+    "vinyl": "^2.0.2"
+  }
+}
