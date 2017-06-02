@@ -127,7 +127,7 @@ function runFecs(editor, needDelay) {
     editorFecsData.isRunning = true;
     fecs.check({
         stream: stream,
-        reporter: 'baidu',
+        reporter: config.en ? '' : 'baidu',
         type: 'js,css,html'
     }, function (success, json) {
         let errors = (json[0] || {}).errors || [];
