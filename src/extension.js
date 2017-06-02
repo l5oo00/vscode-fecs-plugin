@@ -6,6 +6,7 @@ const nodePathLib = require('path');
 const vscode = require('vscode');
 const window = vscode.window;
 const workspace = vscode.workspace;
+const languages = vscode.languages;
 const Uri = vscode.Uri;
 
 const fecs = require('fecs');
@@ -14,10 +15,13 @@ const File = require('vinyl');
 let config = {
     en: false,
     level: 0,
+    errorColor: '#f00',
+    warningColor: '#ddb700',
     typeMap: new Map()
 };
 
 let editorFecsDataMap = new Map();
+let diagnosticCollection = languages.createDiagnosticCollection('fecs');
 
 let extContext = null;
 let statusBarItem = null;
@@ -37,7 +41,18 @@ function setTypeMap(configuration) {
     });
 }
 
+function isSupportDocument (document) {
+    let fileName = document.fileName || '';
+    let ext = fileName.split('.').pop();
 
+    return config.typeMap.has(ext) ? {type: config.typeMap.get(ext)} : null;
+}
+function getFecsType (document) {
+    let fileName = document.fileName || '';
+    let ext = fileName.split('.').pop();
+
+    return config.typeMap.get(ext);
+}
 
 function createCodeStream (code = '', type = '') {
 
@@ -58,29 +73,33 @@ function createCodeStream (code = '', type = '') {
 }
 
 function generateEditorFecsData (editor) {
-    if (editorFecsDataMap.has(editor.document)) {
+    if (editorFecsDataMap.has(editor.id)) {
         return;
     }
-    editorFecsDataMap.set(editor.document, {
+
+    editorFecsDataMap.set(editor.id, {
         oldDecorationTypeList: [],
         delayTimer: null,
         isRunning: false,
-        errorMap: null
+        errorMap: null,
+        diagnostics: []
     });
 }
 function getEditorFecsData (editor) {
-    return editorFecsDataMap.get(editor.document);
+    return editorFecsDataMap.get(editor.id);
+}
+function checkEditorFecsData (document) {
+    log('checkEditorFecsData: ', document.fileName);
 }
 
 function runFecs(editor, needDelay) {
-    if (!editor) {
+    if (!editor || !editor.document) {
         return;
     }
-    let document = editor.document;
-    let fileName = document.fileName || '';
-    let ext = fileName.split('.').pop();
 
-    if (!config.typeMap.has(ext)) {
+    let document = editor.document;
+
+    if (!isSupportDocument(document)) {
         return;
     }
 
@@ -100,9 +119,8 @@ function runFecs(editor, needDelay) {
         return;
     }
 
-    let type = config.typeMap.get(ext);
-    let code = editor.document.getText();
-    let stream = createCodeStream(code, type);
+    let code = document.getText();
+    let stream = createCodeStream(code, document.fileName.split('.').pop());
 
     log('runFecs');
 
@@ -112,7 +130,7 @@ function runFecs(editor, needDelay) {
         reporter: 'baidu',
         type: 'js,css,html'
     }, function (success, json) {
-        let errors = json[0].errors;
+        let errors = (json[0] || {}).errors || [];
         log('checkDone! Error count: ', errors.length);
         renderErrors(errors, editor);
         editorFecsData.isRunning = false;
@@ -121,11 +139,11 @@ function runFecs(editor, needDelay) {
 
 function generateDecorationType (type = 'warning') {
     let pointPath = warningPointImagePath;
-    let rulerColor = '#ddb700';
+    let rulerColor = config.warningColor;
 
     if (type === 'error') {
         pointPath = errorPointImagePath;
-        rulerColor = '#f00';
+        rulerColor = config.errorColor;
     }
 
     return vscode.window.createTextEditorDecorationType({
@@ -137,11 +155,25 @@ function generateDecorationType (type = 'warning') {
 
 function generateDecoration (lineIndex) {
     let startPos = new vscode.Position(lineIndex, 0);
-    let endPos = new vscode.Position(lineIndex, 1);
+    let endPos = new vscode.Position(lineIndex, 0);
     let decoration = {
         range: new vscode.Range(startPos, endPos)
     };
     return decoration;
+}
+
+function generateDiagnostic (data) {
+
+    let lineIndex = data.line - 1;
+    let cloumnIndex = data.column - 1;
+    let startPos = new vscode.Position(lineIndex, cloumnIndex);
+    let endPos = new vscode.Position(lineIndex, cloumnIndex);
+    let range = new vscode.Range(startPos, endPos);
+
+    let message = data.message;
+    let severity = data.severity === 2 ? 0 : 1;
+
+    return new vscode.Diagnostic(range, message, severity);
 }
 
 function decorateEditor(editor, list, type, oldDecorationTypeList) {
@@ -166,14 +198,21 @@ function renderErrors(errors, editor) {
         editorFecsData.errorMap.clear();
     }
     let errorMap = editorFecsData.errorMap = new Map();
+    let diagnostics = editorFecsData.diagnostics = [];
 
     let warningDecorationList = [];
     let errorDecorationList = [];
     errors.forEach(err => {
-
         let lineIndex = err.line - 1;
-
-        errorMap.set(lineIndex, (errorMap.get(lineIndex) || []).concat(err.message.trim()));
+        diagnostics.push(generateDiagnostic(err));
+        errorMap.set(lineIndex, (errorMap.get(lineIndex) || []).concat(err));
+    });
+    errorMap.forEach(errs => {
+        errs.sort((a, b) => {
+            return b.severity - a.severity;
+        });
+        let err = errs[0];
+        let lineIndex = err.line - 1;
         let decotation = generateDecoration(lineIndex);
         if (err.severity === 2) {
             errorDecorationList.push(decotation);
@@ -183,23 +222,28 @@ function renderErrors(errors, editor) {
         }
     });
 
-    decorateEditor(editor, warningDecorationList, 'warning', oldDecorationTypeList);
     decorateEditor(editor, errorDecorationList, 'error', oldDecorationTypeList);
+    decorateEditor(editor, warningDecorationList, 'warning', oldDecorationTypeList);
 
     // log(JSON.stringify(errors, null, 4));
     showErrorMessageInStatusBar(editor);
+    showDiagnostics(editor);
 }
 
 function showErrorMessageInStatusBar (editor) {
+
+    if (editor !== window.activeTextEditor) {
+        return;
+    }
+
     let selection = editor.selection;
     let line = selection.start.line; // 只显示选区第一行的错误信息
     let editorFecsData = getEditorFecsData(editor) || {};
     let errorMap = editorFecsData.errorMap;
-    let msg = [];
+    let errList = [];
 
     if (errorMap && errorMap.has(line)) {
-        msg = errorMap.get(line);
-        log('showErrorMessageInStatusBar: \n    ' + msg.join('\n    '));
+        errList = errorMap.get(line);
     }
 
     if (!statusBarItem) {
@@ -207,8 +251,24 @@ function showErrorMessageInStatusBar (editor) {
         statusBarItem.show();
     }
 
-    statusBarItem.text = msg[0];
-    statusBarItem.tooltip = msg.join('\n');
+    let showErr = errList[0] || {message: '', severity: 0};
+
+    statusBarItem.text = showErr.message.trim();
+    statusBarItem.color = showErr.severity === 2 ? config.errorColor : config.warningColor;
+    statusBarItem.tooltip = errList.map(err => err.message.trim()).join('\n');
+}
+
+function showDiagnostics (editor) {
+    let editorFecsData = getEditorFecsData(editor);
+    let uri = editor.document.uri;
+    let diagnostics = editorFecsData.diagnostics;
+
+    if (window.activeTextEditor !== editor) {
+        diagnosticCollection.delete(uri);
+        return;
+    }
+
+    diagnosticCollection.set(uri, diagnostics);
 }
 
 // this method is called when your extension is activated
@@ -224,27 +284,47 @@ function activate(context) {
     config.level = configuration.get('level', 0);
     setTypeMap(configuration);
 
-
-    workspace.onDidChangeTextDocument(function (document) {
-        console.log('workspace.onDidChangeTextDocument');
-        runFecs(window.activeTextEditor, true);
-        showErrorMessageInStatusBar(window.activeTextEditor);
+    workspace.onDidCloseTextDocument(function (document) {
+        log('workspace.onDidCloseTextDocument');
+        if (!isSupportDocument(document)) {
+            return;
+        }
+        checkEditorFecsData(document);
     });
-    // window.onDidChangeActiveTextEditor(function (editor) {
-    //     console.log('window.onDidChangeActiveTextEditor')
-    // });
-    window.onDidChangeVisibleTextEditors(function (editor) {
-        console.log('window.onDidChangeVisibleTextEditors, editor count: ', window.visibleTextEditors.length);
+
+    // 编辑文档后触发(coding...)
+    workspace.onDidChangeTextDocument(function (event) {
+        log('workspace.onDidChangeTextDocument');
+        let editor = window.activeTextEditor;
+        let document = event.document;
+        if (editor && editor.document && document.fileName === editor.document.fileName) {
+            runFecs(window.activeTextEditor, true);
+            showErrorMessageInStatusBar(window.activeTextEditor);
+        }
+    });
+
+    // 切换文件 tab 后触发
+    window.onDidChangeActiveTextEditor(function (editor) {
+
+        diagnosticCollection.clear();
+
+        log('window.onDidChangeActiveTextEditor: ', editor.id);
         window.visibleTextEditors.filter(function (e) {
             return e !== editor;
         }).forEach(function (e, i) {
             runFecs(e);
         });
         runFecs(editor);
+        showErrorMessageInStatusBar(editor);
+        showDiagnostics(editor);
     });
+
+    // 光标移动后触发
     window.onDidChangeTextEditorSelection(function (event) {
-        console.log('window.onDidChangeTextEditorSelection');
-        showErrorMessageInStatusBar(event.textEditor);
+        log('window.onDidChangeTextEditorSelection');
+        if (event.textEditor === window.activeTextEditor) {
+            showErrorMessageInStatusBar(event.textEditor);
+        }
     });
 
 
