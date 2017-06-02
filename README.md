@@ -4,6 +4,27 @@ A better fecs extension for vscode. This is inspired by [SublimeLinter-contrib-f
 
 ## Features
 
+> **Attention:** the gutter icon for this extension will overlap the 'debug break point' icon.
+
+- fecs for javascript
+
+![javascript](images/js.png)
+
+- fecs for css
+
+![css](images/css.png)
+
+- fecs for less
+
+![less](images/less.png)
+
+- fecs for html
+
+![html](images/html.png)
+
+- fecs for vue
+
+![vue](images/vue.png)
 
 
 ## Extension Settings
@@ -18,7 +39,6 @@ This extension contributes the following settings:
 
 ### For more information
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+* [FECS](http://fecs.baidu.com/)
 
 **Enjoy!**
