@@ -5,6 +5,10 @@
   "icon": "images/fecs.png",
   "version": "0.0.1",
   "publisher": "l5oo00",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/l5oo00/vscode-fecs-plugin"
+  },
   "engines": {
     "vscode": "^1.12.0"
   },
@@ -58,7 +62,7 @@
             "html",
             "htm",
             "tpl"
-            ],
+          ],
           "title": "Fecs files with these extensions",
           "type": "array",
           "description": "Specified 'html like' files extension that can use fecs."
@@ -79,6 +83,7 @@
     "@types/mocha": "^2.2.32"
   },
   "dependencies": {
+    "fecs": "^1.2.3",
     "vinyl": "^2.0.2"
   }
 }

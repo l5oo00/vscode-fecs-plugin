@@ -1,5 +1,18 @@
+/**
+* @file: extension.js
+* @author: yanglei07
+* @description ..
+* @create data: 2017-06-02 21:17:13
+* @last modifity by: yanglei07
+* @last modifity time: 2017-06-02 21:17:13
+*/
+
+/* global  */
+
+/* eslint-disable fecs-camelcase */
+/* eslint-enable fecs-camelcase */
+'use strict';
 const Readable = require('stream').Readable;
-const nodePathLib = require('path');
 
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
@@ -29,8 +42,8 @@ let statusBarItem = null;
 let warningPointImagePath = '';
 let errorPointImagePath = '';
 
-function log() {
-    console.log.apply(console, arguments);
+function log(...args) {
+    console.log.apply(console, args);
 }
 
 function setTypeMap(configuration) {
@@ -41,20 +54,14 @@ function setTypeMap(configuration) {
     });
 }
 
-function isSupportDocument (document) {
+function isSupportDocument(document) {
     let fileName = document.fileName || '';
     let ext = fileName.split('.').pop();
 
     return config.typeMap.has(ext) ? {type: config.typeMap.get(ext)} : null;
 }
-function getFecsType (document) {
-    let fileName = document.fileName || '';
-    let ext = fileName.split('.').pop();
 
-    return config.typeMap.get(ext);
-}
-
-function createCodeStream (code = '', type = '') {
+function createCodeStream(code = '', type = '') {
 
     let buf = new Buffer(code);
     let file = new File({
@@ -72,7 +79,7 @@ function createCodeStream (code = '', type = '') {
     return stream;
 }
 
-function generateEditorFecsData (editor) {
+function generateEditorFecsData(editor) {
     if (editorFecsDataMap.has(editor.id)) {
         return;
     }
@@ -85,10 +92,10 @@ function generateEditorFecsData (editor) {
         diagnostics: []
     });
 }
-function getEditorFecsData (editor) {
+function getEditorFecsData(editor) {
     return editorFecsDataMap.get(editor.id);
 }
-function checkEditorFecsData (document) {
+function checkEditorFecsData(document) {
     log('checkEditorFecsData: ', document.fileName);
 }
 
@@ -113,7 +120,7 @@ function runFecs(editor, needDelay) {
     if (needDelay) {
         clearTimeout(editorFecsData.delayTimer);
         editorFecsData.delayTimer = setTimeout(() => {
-             editorFecsData.delayTimer = null;
+            editorFecsData.delayTimer = null;
             runFecs(editor);
         }, 1000);
         return;
@@ -137,7 +144,7 @@ function runFecs(editor, needDelay) {
     });
 }
 
-function generateDecorationType (type = 'warning') {
+function generateDecorationType(type = 'warning') {
     let pointPath = warningPointImagePath;
     let rulerColor = config.warningColor;
 
@@ -153,7 +160,7 @@ function generateDecorationType (type = 'warning') {
     });
 }
 
-function generateDecoration (lineIndex) {
+function generateDecoration(lineIndex) {
     let startPos = new vscode.Position(lineIndex, 0);
     let endPos = new vscode.Position(lineIndex, 0);
     let decoration = {
@@ -162,7 +169,7 @@ function generateDecoration (lineIndex) {
     return decoration;
 }
 
-function generateDiagnostic (data) {
+function generateDiagnostic(data) {
 
     let lineIndex = data.line - 1;
     let cloumnIndex = data.column - 1;
@@ -208,9 +215,7 @@ function renderErrors(errors, editor) {
         errorMap.set(lineIndex, (errorMap.get(lineIndex) || []).concat(err));
     });
     errorMap.forEach(errs => {
-        errs.sort((a, b) => {
-            return b.severity - a.severity;
-        });
+        errs.sort((a, b) => b.severity - a.severity);
         let err = errs[0];
         let lineIndex = err.line - 1;
         let decotation = generateDecoration(lineIndex);
@@ -230,7 +235,7 @@ function renderErrors(errors, editor) {
     showDiagnostics(editor);
 }
 
-function showErrorMessageInStatusBar (editor) {
+function showErrorMessageInStatusBar(editor) {
 
     if (editor !== window.activeTextEditor) {
         return;
@@ -258,7 +263,7 @@ function showErrorMessageInStatusBar (editor) {
     statusBarItem.tooltip = errList.map(err => err.message.trim()).join('\n');
 }
 
-function showDiagnostics (editor) {
+function showDiagnostics(editor) {
     let editorFecsData = getEditorFecsData(editor);
     let uri = editor.document.uri;
     let diagnostics = editorFecsData.diagnostics;
@@ -279,7 +284,7 @@ function activate(context) {
     warningPointImagePath = context.asAbsolutePath('images/warning.svg');
     errorPointImagePath = context.asAbsolutePath('images/error.svg');
 
-    var configuration = workspace.getConfiguration('vscode-fecs-plugin');
+    let configuration = workspace.getConfiguration('vscode-fecs-plugin');
     config.en = configuration.get('en', false);
     config.level = configuration.get('level', 0);
     setTypeMap(configuration);
