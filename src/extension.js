@@ -12,18 +12,22 @@
 /* eslint-disable fecs-camelcase */
 /* eslint-enable fecs-camelcase */
 'use strict';
+/* eslint-disable fecs-no-require */
 const Readable = require('stream').Readable;
 
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-const window = vscode.window;
-const workspace = vscode.workspace;
-const languages = vscode.languages;
-const Uri = vscode.Uri;
+// const window = vscode.window;
+// const workspace = vscode.workspace;
+// const languages = vscode.languages;
+const {window, workspace, languages} = vscode;
 
 const fecs = require('fecs');
 const File = require('vinyl');
+/* eslint-enable fecs-no-require */
+
+const maxUnvisibleEditorDataCount = 20;
 
 let config = {
     en: false,
@@ -43,7 +47,9 @@ let warningPointImagePath = '';
 let errorPointImagePath = '';
 
 function log(...args) {
+    /* eslint-disable no-console */
     console.log.apply(console, args);
+    /* eslint-enable no-console */
 }
 
 function setTypeMap(configuration) {
@@ -59,6 +65,14 @@ function isSupportDocument(document) {
     let ext = fileName.split('.').pop();
 
     return config.typeMap.has(ext) ? {type: config.typeMap.get(ext)} : null;
+}
+
+function isSupportEditor(editor) {
+    if (!editor || !editor.document) {
+        return false;
+    }
+
+    return isSupportDocument(editor.document);
 }
 
 function createCodeStream(code = '', type = '') {
@@ -80,23 +94,47 @@ function createCodeStream(code = '', type = '') {
 }
 
 function generateEditorFecsData(editor) {
-    if (editorFecsDataMap.has(editor.id)) {
+    if (!editor || editorFecsDataMap.has(editor.id)) {
         return;
     }
 
+    let fileName = editor.document ? editor.document.fileName : '';
+
     editorFecsDataMap.set(editor.id, {
+        fileName: fileName,
         oldDecorationTypeList: [],
         delayTimer: null,
         isRunning: false,
+        needCheck: true,
         errorMap: null,
-        diagnostics: []
+        diagnostics: [],
+        warningDecorationList: [],
+        errorDecorationList: []
     });
 }
 function getEditorFecsData(editor) {
+    if (!editor) {
+        return null;
+    }
     return editorFecsDataMap.get(editor.id);
 }
 function checkEditorFecsData(document) {
     log('checkEditorFecsData: ', document.fileName);
+
+    if (editorFecsDataMap.size - window.visibleTextEditors.length < maxUnvisibleEditorDataCount) {
+        return;
+    }
+
+    let newMap = new Map();
+    let oldMap = editorFecsDataMap;
+    window.visibleTextEditors.forEach(e => {
+        let data = getEditorFecsData(e);
+        if (data) {
+            newMap.set(e.id, data);
+        }
+    });
+    editorFecsDataMap = newMap;
+    oldMap.clear();
 }
 
 function runFecs(editor, needDelay) {
@@ -119,10 +157,17 @@ function runFecs(editor, needDelay) {
 
     if (needDelay) {
         clearTimeout(editorFecsData.delayTimer);
+        let editorId = editor.id;
         editorFecsData.delayTimer = setTimeout(() => {
             editorFecsData.delayTimer = null;
-            runFecs(editor);
+
+            runFecs(window.visibleTextEditors.filter(e => e.id === editorId)[0]);
         }, 1000);
+        return;
+    }
+
+    if (!editorFecsData.needCheck) {
+        renderErrors(editor);
         return;
     }
 
@@ -132,6 +177,7 @@ function runFecs(editor, needDelay) {
     log('runFecs');
 
     editorFecsData.isRunning = true;
+    editorFecsData.needCheck = false;
     fecs.check({
         stream: stream,
         reporter: config.en ? '' : 'baidu',
@@ -139,7 +185,8 @@ function runFecs(editor, needDelay) {
     }, function (success, json) {
         let errors = (json[0] || {}).errors || [];
         log('checkDone! Error count: ', errors.length);
-        renderErrors(errors, editor);
+        prepareErrors(errors, editor);
+        renderErrors(editor);
         editorFecsData.isRunning = false;
     });
 }
@@ -177,7 +224,7 @@ function generateDiagnostic(data) {
     let endPos = new vscode.Position(lineIndex, cloumnIndex);
     let range = new vscode.Range(startPos, endPos);
 
-    let message = data.message;
+    let message = data.msg;
     let severity = data.severity === 2 ? 0 : 1;
 
     return new vscode.Diagnostic(range, message, severity);
@@ -191,7 +238,7 @@ function decorateEditor(editor, list, type, oldDecorationTypeList) {
     }
 }
 
-function renderErrors(errors, editor) {
+function prepareErrors(errors, editor) {
 
     let editorFecsData = getEditorFecsData(editor);
     let oldDecorationTypeList = editorFecsData.oldDecorationTypeList;
@@ -207,10 +254,12 @@ function renderErrors(errors, editor) {
     let errorMap = editorFecsData.errorMap = new Map();
     let diagnostics = editorFecsData.diagnostics = [];
 
-    let warningDecorationList = [];
-    let errorDecorationList = [];
+    let warningDecorationList = editorFecsData.warningDecorationList = [];
+    let errorDecorationList = editorFecsData.errorDecorationList = [];
+
     errors.forEach(err => {
         let lineIndex = err.line - 1;
+        err.msg = err.message.trim() + ' (rule: ' + err.rule + ')';
         diagnostics.push(generateDiagnostic(err));
         errorMap.set(lineIndex, (errorMap.get(lineIndex) || []).concat(err));
     });
@@ -226,7 +275,16 @@ function renderErrors(errors, editor) {
             warningDecorationList.push(decotation);
         }
     });
+}
 
+function renderErrors(editor) {
+    let editorFecsData = getEditorFecsData(editor);
+
+    if (!editorFecsData) {
+        return;
+    }
+
+    let {errorDecorationList, warningDecorationList, oldDecorationTypeList} = editorFecsData;
     decorateEditor(editor, errorDecorationList, 'error', oldDecorationTypeList);
     decorateEditor(editor, warningDecorationList, 'warning', oldDecorationTypeList);
 
@@ -256,15 +314,20 @@ function showErrorMessageInStatusBar(editor) {
         statusBarItem.show();
     }
 
-    let showErr = errList[0] || {message: '', severity: 0};
+    let showErr = errList[0] || {msg: '', severity: 0};
 
-    statusBarItem.text = showErr.message.trim();
+    statusBarItem.text = showErr.msg;
     statusBarItem.color = showErr.severity === 2 ? config.errorColor : config.warningColor;
-    statusBarItem.tooltip = errList.map(err => err.message.trim()).join('\n');
+    statusBarItem.tooltip = errList.map(err => err.msg).join('\n');
 }
 
 function showDiagnostics(editor) {
     let editorFecsData = getEditorFecsData(editor);
+
+    if (!editorFecsData) {
+        return;
+    }
+
     let uri = editor.document.uri;
     let diagnostics = editorFecsData.diagnostics;
 
@@ -281,8 +344,8 @@ function showDiagnostics(editor) {
 function activate(context) {
 
     extContext = context;
-    warningPointImagePath = context.asAbsolutePath('images/warning.svg');
-    errorPointImagePath = context.asAbsolutePath('images/error.svg');
+    warningPointImagePath = extContext.asAbsolutePath('images/warning.svg');
+    errorPointImagePath = extContext.asAbsolutePath('images/error.svg');
 
     let configuration = workspace.getConfiguration('vscode-fecs-plugin');
     config.en = configuration.get('en', false);
@@ -302,31 +365,57 @@ function activate(context) {
         log('workspace.onDidChangeTextDocument');
         let editor = window.activeTextEditor;
         let document = event.document;
-        if (editor && editor.document && document.fileName === editor.document.fileName) {
-            runFecs(window.activeTextEditor, true);
-            showErrorMessageInStatusBar(window.activeTextEditor);
+
+        if (!isSupportDocument(document)) {
+            return;
         }
+
+        window.visibleTextEditors.filter(e =>
+            e.document && e.document.fileName === document.fileName
+        ).forEach(e => {
+            (getEditorFecsData(e) || {}).needCheck = true;
+            runFecs(e, true);
+        });
+        showErrorMessageInStatusBar(editor);
+    });
+
+    window.onDidChangeVisibleTextEditors(function (editors) {
+        log('window.onDidChangeVisibleTextEditors');
     });
 
     // 切换文件 tab 后触发
     window.onDidChangeActiveTextEditor(function (editor) {
+        if (!editor) {
+            return;
+        }
+        log('window.onDidChangeActiveTextEditor: ', editor.id);
 
         diagnosticCollection.clear();
-
-        log('window.onDidChangeActiveTextEditor: ', editor.id);
-        window.visibleTextEditors.filter(function (e) {
-            return e !== editor;
-        }).forEach(function (e, i) {
-            runFecs(e);
-        });
-        runFecs(editor);
         showErrorMessageInStatusBar(editor);
         showDiagnostics(editor);
+
+        window.visibleTextEditors.forEach(function (e, i) {
+            if (!isSupportEditor(e)) {
+                return;
+            }
+            runFecs(e, true);
+        });
+
+        // if (!isSupportEditor(editor)) {
+        //     return;
+        // }
+
+        // runFecs(editor, true);
     });
 
     // 光标移动后触发
     window.onDidChangeTextEditorSelection(function (event) {
         log('window.onDidChangeTextEditorSelection');
+
+        if (!event.textEditor || !event.textEditor.document || !isSupportDocument(event.textEditor.document)) {
+            return;
+        }
+
         if (event.textEditor === window.activeTextEditor) {
             showErrorMessageInStatusBar(event.textEditor);
         }
