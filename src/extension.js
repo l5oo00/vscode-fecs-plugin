@@ -320,6 +320,14 @@ function showErrorMessageInStatusBar(editor) {
     statusBarItem.color = showErr.severity === 2 ? config.errorColor : config.warningColor;
     statusBarItem.tooltip = errList.map(err => err.msg).join('\n');
 }
+function clearStatusBarMessage() {
+    if (!statusBarItem) {
+        return;
+    }
+
+    statusBarItem.text = '';
+    statusBarItem.tooltip = '';
+}
 
 function showDiagnostics(editor) {
     let editorFecsData = getEditorFecsData(editor);
@@ -358,6 +366,10 @@ function activate(context) {
             return;
         }
         checkEditorFecsData(document);
+
+        if (!window.activeTextEditor) {
+            clearStatusBarMessage();
+        }
     });
 
     // 编辑文档后触发(coding...)
