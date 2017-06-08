@@ -14,6 +14,7 @@
 'use strict';
 /* eslint-disable fecs-no-require */
 const Readable = require('stream').Readable;
+const nodePathLib = require('path');
 
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
@@ -34,7 +35,9 @@ let config = {
     level: 0,
     errorColor: '#f00',
     warningColor: '#ddb700',
-    typeMap: new Map()
+    typeMap: new Map(),
+    excludePaths: [],
+    excludeFileNameSuffixes: []
 };
 
 let editorFecsDataMap = new Map();
@@ -64,7 +67,21 @@ function isSupportDocument(document) {
     let fileName = document.fileName || '';
     let ext = fileName.split('.').pop();
 
-    return config.typeMap.has(ext) ? {type: config.typeMap.get(ext)} : null;
+    let support = config.typeMap.has(ext);
+    if (!support) {
+        return false;
+    }
+
+    support = config.excludePaths.every(path => fileName.indexOf(nodePathLib.sep + path + nodePathLib.sep) === -1);
+    if (!support) {
+        // log('uncheck by path: ', fileName);
+        return false;
+    }
+
+    support = config.excludeFileNameSuffixes.every(suffix => !fileName.endsWith(suffix));
+    // !support && log('uncheck by suffix: ', fileName);
+
+    return support;
 }
 
 function isSupportEditor(editor) {
@@ -359,6 +376,8 @@ function activate(context) {
     config.en = configuration.get('en', false);
     config.level = configuration.get('level', 0);
     setTypeMap(configuration);
+    config.excludePaths = configuration.get('excludePaths', []);
+    config.excludeFileNameSuffixes = configuration.get('excludeFileNameSuffixes', []);
 
     workspace.onDidCloseTextDocument(function (document) {
         log('workspace.onDidCloseTextDocument');
@@ -366,6 +385,10 @@ function activate(context) {
             return;
         }
         checkEditorFecsData(document);
+
+        if (document && document.uri) {
+            diagnosticCollection.delete(document.uri);
+        }
 
         if (!window.activeTextEditor) {
             clearStatusBarMessage();

@@ -3,7 +3,7 @@
   "displayName": "vscode-fecs-plugin",
   "description": "A better fecs extension for vscode.",
   "icon": "images/fecs.png",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "l5oo00",
   "repository": {
     "type": "git",
@@ -66,6 +66,27 @@
           "title": "Fecs files with these extensions",
           "type": "array",
           "description": "Specified 'html like' files extension that can use fecs."
+        },
+        "vscode-fecs-plugin.excludePaths": {
+          "default": [
+            "node_modules",
+            "third_party",
+            "output",
+            "dist"
+          ],
+          "title": "Uncheck the files in these directory",
+          "type": "array",
+          "description": "Uncheck the files in these directory."
+        },
+        "vscode-fecs-plugin.excludeFileNameSuffixes": {
+          "default": [
+            ".min.js",
+            ".min.css",
+            ".min.html"
+          ],
+          "title": "Uncheck the files with these suffixes",
+          "type": "array",
+          "description": "Uncheck the files with these suffixes."
         }
       }
     }
