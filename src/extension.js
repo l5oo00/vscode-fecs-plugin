@@ -335,7 +335,7 @@ function showErrorMessageInStatusBar(editor) {
 
     statusBarItem.text = showErr.msg;
     statusBarItem.color = showErr.severity === 2 ? config.errorColor : config.warningColor;
-    statusBarItem.tooltip = errList.map(err => err.msg).join('\n');
+    statusBarItem.tooltip = 'fecs:\n\n' + errList.map(err => err.msg).join('\n\n');
 }
 function clearStatusBarMessage() {
     if (!statusBarItem) {
