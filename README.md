@@ -2,9 +2,9 @@
 
 A better fecs extension for vscode. This is inspired by [SublimeLinter-contrib-fecs](https://github.com/robbenmu/SublimeLinter-contrib-fecs) and [VScode-fecs](https://github.com/MarxJiao/VScode-fecs).
 
-## Features
+## [Install](https://marketplace.visualstudio.com/items?itemName=l5oo00.vscode-fecs-plugin)
 
-> **Attention:** the gutter icon for this extension will overlap the 'debug break point' icon.
+## Features
 
 - fecs for javascript
 
@@ -26,6 +26,8 @@ A better fecs extension for vscode. This is inspired by [SublimeLinter-contrib-f
 
 ![vue](images/vue.png)
 
+> **Attention:** the gutter icon for this extension will overlap the 'debug break point' icon.<br>
+> **Attention:** Sometimes the error message is too long to display, maybe you need [this extension](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css) and this script(`script/statusBarItemWidthFix.js`).
 
 ## Extension Settings
 
@@ -36,6 +38,8 @@ This extension contributes the following settings:
 - `vscode-fecs-plugin.jsLikeExt`: Specified 'js like' files extension that can use fecs.
 - `vscode-fecs-plugin.cssLikeExt`: Specified 'css like' files extension that can use fecs.
 - `vscode-fecs-plugin.htmlLikeExt`: Specified 'html like' files extension that can use fecs.
+- `vscode-fecs-plugin.excludePaths`: Uncheck the files in these directory.
+- `vscode-fecs-plugin.excludeFileNameSuffixes`: Uncheck the files with these suffixes.
 
 ### For more information
 

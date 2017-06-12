@@ -85,8 +85,20 @@
         s.overflow = 'hidden';
         s.textOverflow = 'ellipsis';
 
-        var w = item.offsetWidth;
+        var w = Math.min(500, item.offsetWidth);
+        s.width = w + 'px';
+
         while (item.offsetTop > 10 && w > 0) {
+            if (w >= 400) {
+                w -= 100;
+            }
+            else if (w >= 250) {
+                w -= 50;
+            }
+            else {
+                w -= 10;
+            }
+
             s.width = (--w) + 'px';
         }
 

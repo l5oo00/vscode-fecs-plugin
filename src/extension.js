@@ -284,12 +284,12 @@ function prepareErrors(errors, editor) {
         errs.sort((a, b) => b.severity - a.severity);
         let err = errs[0];
         let lineIndex = err.line - 1;
-        let decotation = generateDecoration(lineIndex);
+        let decortation = generateDecoration(lineIndex);
         if (err.severity === 2) {
-            errorDecorationList.push(decotation);
+            errorDecorationList.push(decortation);
         }
         else {
-            warningDecorationList.push(decotation);
+            warningDecorationList.push(decortation);
         }
     });
 }
