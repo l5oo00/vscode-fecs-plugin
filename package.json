@@ -89,7 +89,19 @@
           "description": "Uncheck the files with these suffixes."
         }
       }
-    }
+    },
+    "commands": [
+      {
+        "command": "vscode-fecs-plugin.format",
+        "title": "fecs format"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vscode-fecs-plugin.format",
+        "key": "cmd+shift+r"
+      }
+    ]
   },
   "scripts": {
     "postinstall": "node ./node_modules/vscode/bin/install",
