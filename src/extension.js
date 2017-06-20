@@ -15,6 +15,7 @@
 /* eslint-disable fecs-no-require */
 const Readable = require('stream').Readable;
 const nodePathLib = require('path');
+const fs = require('fs');
 
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
@@ -198,13 +199,44 @@ function runFecs(editor, needDelay) {
     fecs.check({
         stream: stream,
         reporter: config.en ? '' : 'baidu',
-        type: 'js,css,html'
+        level: config.level
     }, function (success, json) {
         let errors = (json[0] || {}).errors || [];
         log('checkDone! Error count: ', errors.length);
         prepareErrors(errors, editor);
         renderErrors(editor);
         editorFecsData.isRunning = false;
+    });
+}
+
+function runFecsFormat(editor) {
+    if (!editor || !editor.document) {
+        return;
+    }
+
+    let document = editor.document;
+
+    if (!isSupportDocument(document)) {
+        return;
+    }
+
+    document.save().then(() => {
+        let code = document.getText();
+        let stream = createCodeStream(code, document.fileName.split('.').pop());
+
+        let writeStream = fs.createWriteStream(document.fileName, {
+            flags: 'r+'
+        });
+
+        fecs.format({
+            stream: stream,
+            reporter: config.en ? '' : 'baidu',
+            level: config.level
+        }).on('data', function (file) {
+            writeStream.write(file.contents);
+        }).on('end', function () {
+            writeStream.end();
+        });
     });
 }
 
@@ -364,6 +396,36 @@ function showDiagnostics(editor) {
     diagnosticCollection.set(uri, diagnostics);
 }
 
+function registerFormatCommand() {
+    return vscode.commands.registerCommand('vscode-fecs-plugin.format', () => {
+        if (!vscode.window.activeTextEditor) {
+            return;
+        }
+
+        const fileName = vscode.window.activeTextEditor.document.fileName;
+        let fileType;
+
+        if (fileName) {
+            let matchArry = fileName.match(/.*\.(.*)$/);
+            if (matchArry !== null) {
+                fileType = matchArry[1].toLowerCase();
+            }
+        }
+
+        if (
+            fileType === 'js'
+            || fileType === 'es'
+            || fileType === 'html'
+            || fileType === 'css'
+            || fileType === 'less'
+            || fileType === 'jsx'
+            || fileType === 'vue'
+        ) {
+            runFecsFormat(vscode.window.activeTextEditor);
+        }
+    });
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 function activate(context) {
@@ -460,6 +522,8 @@ function activate(context) {
     window.visibleTextEditors.forEach(function (editor, i) {
         runFecs(editor);
     });
+
+    context.subscriptions.push(registerFormatCommand());
 }
 exports.activate = activate;
 
