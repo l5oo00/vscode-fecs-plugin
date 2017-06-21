@@ -15,7 +15,6 @@
 /* eslint-disable fecs-no-require */
 const Readable = require('stream').Readable;
 const nodePathLib = require('path');
-const fs = require('fs');
 
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
@@ -220,22 +219,23 @@ function runFecsFormat(editor) {
         return;
     }
 
-    document.save().then(() => {
-        let code = document.getText();
-        let stream = createCodeStream(code, document.fileName.split('.').pop());
+    let code = document.getText();
+    let stream = createCodeStream(code, document.fileName.split('.').pop());
 
-        let writeStream = fs.createWriteStream(document.fileName, {
-            flags: 'r+'
-        });
+    let data = '';
+    fecs.format({
+        stream: stream,
+        reporter: config.en ? '' : 'baidu',
+        level: config.level
+    }).on('data', function (file) {
+        data += file.contents.toString('utf8');
+    }).on('end', function () {
+        let startPos = new vscode.Position(0, 0);
+        let endPos = new vscode.Position(document.lineCount, 0);
+        let range = new vscode.Range(startPos, endPos);
 
-        fecs.format({
-            stream: stream,
-            reporter: config.en ? '' : 'baidu',
-            level: config.level
-        }).on('data', function (file) {
-            writeStream.write(file.contents);
-        }).on('end', function () {
-            writeStream.end();
+        vscode.window.activeTextEditor.edit(editBuilder => {
+            editBuilder.replace(range, data);
         });
     });
 }
