@@ -222,20 +222,20 @@ function runFecsFormat(editor) {
     let code = document.getText();
     let stream = createCodeStream(code, document.fileName.split('.').pop());
 
-    let data = '';
+    let bufData = [];
     fecs.format({
         stream: stream,
         reporter: config.en ? '' : 'baidu',
         level: config.level
     }).on('data', function (file) {
-        data += file.contents.toString('utf8');
+        bufData = bufData.concat(file.contents);
     }).on('end', function () {
         let startPos = new vscode.Position(0, 0);
         let endPos = new vscode.Position(document.lineCount, 0);
         let range = new vscode.Range(startPos, endPos);
 
         vscode.window.activeTextEditor.edit(editBuilder => {
-            editBuilder.replace(range, data);
+            editBuilder.replace(range, bufData.toString('utf8'));
         });
     });
 }
@@ -344,7 +344,7 @@ function renderErrors(editor) {
 
 function showErrorMessageInStatusBar(editor) {
 
-    if (editor !== window.activeTextEditor) {
+    if (!editor || editor !== window.activeTextEditor) {
         return;
     }
 
