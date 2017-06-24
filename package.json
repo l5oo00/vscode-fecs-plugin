@@ -3,7 +3,7 @@
   "displayName": "vscode-fecs-plugin",
   "description": "A better fecs extension for vscode.",
   "icon": "images/fecs.png",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "l5oo00",
   "repository": {
     "type": "git",
@@ -116,7 +116,6 @@
     "@types/mocha": "^2.2.32"
   },
   "dependencies": {
-    "fecs": "^1.2.3",
     "vinyl": "^2.0.2"
   }
 }
