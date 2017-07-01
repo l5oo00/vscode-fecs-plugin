@@ -7,7 +7,7 @@ A better fecs extension for vscode. This is inspired by [SublimeLinter-contrib-f
 - `npm install fecs -g`
 - Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5oo00.vscode-fecs-plugin): `ext install vscode-fecs-plugin`
 
-### Can't word?
+### Can't work?
 
 Open the Developer Tools(_Help -> Toggle Developer Tools_), filter the error message by keyword `fecs`.
 

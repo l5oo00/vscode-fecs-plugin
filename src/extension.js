@@ -1,17 +1,18 @@
 /**
-* @file: extension.js
-* @author: yanglei07
-* @description ..
-* @create data: 2017-06-02 21:17:13
-* @last modifity by: yanglei07
-* @last modifity time: 2017-06-02 21:17:13
-*/
+ * @file: extension.js
+ * @author: yanglei07
+ * @description ..
+ * @create data: 2017-06-02 21:17:13
+ * @last modified by: yanglei07
+ * @last modified time: 2017-07-01 16:02:54
+ */
 
 /* global  */
 
 /* eslint-disable fecs-camelcase */
 /* eslint-enable fecs-camelcase */
 'use strict';
+
 /* eslint-disable fecs-no-require */
 const Readable = require('stream').Readable;
 const nodePathLib = require('path');
@@ -24,7 +25,14 @@ const vscode = require('vscode');
 // const languages = vscode.languages;
 const {window, workspace, languages} = vscode;
 
-const fecs = require('fecs');
+let fecsLib;
+try {
+    fecsLib = require('fecs');
+}
+catch (ex) {
+    fecsLib = null;
+}
+const fecs = fecsLib;
 const File = require('vinyl');
 /* eslint-enable fecs-no-require */
 
@@ -83,7 +91,6 @@ function isSupportDocument(document) {
 
     return support;
 }
-
 function isSupportEditor(editor) {
     if (!editor || !editor.document) {
         return false;
@@ -129,12 +136,14 @@ function generateEditorFecsData(editor) {
         errorDecorationList: []
     });
 }
+
 function getEditorFecsData(editor) {
     if (!editor) {
         return null;
     }
     return editorFecsDataMap.get(editor.id);
 }
+
 function checkEditorFecsData(document) {
     log('checkEditorFecsData: ', document.fileName);
 
@@ -369,6 +378,7 @@ function showErrorMessageInStatusBar(editor) {
     statusBarItem.color = showErr.severity === 2 ? config.errorColor : config.warningColor;
     statusBarItem.tooltip = 'fecs:\n\n' + errList.map(err => err.msg).join('\n\n');
 }
+
 function clearStatusBarMessage() {
     if (!statusBarItem) {
         return;
@@ -429,6 +439,20 @@ function registerFormatCommand() {
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 function activate(context) {
+
+    if (!fecs) {
+        window.showInformationMessage([
+            'vscode-fecs-plugin: view the github repository(',
+            ' https://github.com/l5oo00/vscode-fecs-plugin ',
+            ') for details.'
+        ].join(''));
+        window.showErrorMessage([
+            'vscode-fecs-plugin: Error: Can\'t find module: fecs. ',
+            'Maybe you should install the fecs module in global ',
+            'and set the correct NODE_PATH environment variable.'
+        ].join(''));
+        return;
+    }
 
     extContext = context;
     warningPointImagePath = extContext.asAbsolutePath('images/warning.svg');
