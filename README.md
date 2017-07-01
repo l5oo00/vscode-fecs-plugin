@@ -7,6 +7,14 @@ A better fecs extension for vscode. This is inspired by [SublimeLinter-contrib-f
 - `npm install fecs -g`
 - Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5oo00.vscode-fecs-plugin): `ext install vscode-fecs-plugin`
 
+### Can't word?
+
+Open the Developer Tools(_Help -> Toggle Developer Tools_), filter the error message by keyword `fecs`.
+
+- [Error: Cannot find module 'fecs'](https://github.com/l5oo00/vscode-fecs-plugin/issues/4#issuecomment-312411535)
+- The error message is not shown
+    > **Attention:** Sometimes the error message is too long to display, maybe you need [this extension](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css) and this script([script/statusBarItemWidthFix.js](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/scripts/statusBarItemWidthFix.js)).
+
 ## Features
 
 - fecs for javascript
@@ -29,8 +37,7 @@ A better fecs extension for vscode. This is inspired by [SublimeLinter-contrib-f
 
 ![vue](images/vue.png)
 
-> **Attention:** the gutter icon for this extension will overlap the 'debug break point' icon.<br>
-> **Attention:** Sometimes the error message is too long to display, maybe you need [this extension](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css) and this script(`script/statusBarItemWidthFix.js`).
+> **Attention:** the gutter icon for this extension will overlap the 'debug break point' icon.
 
 ## Extension Settings
 
