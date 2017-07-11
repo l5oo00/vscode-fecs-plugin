@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2017-06-02 21:17:13
  * @last modified by: yanglei07
- * @last modified time: 2017-07-01 16:02:54
+ * @last modified time: 2017-07-11 18:21:47
  */
 
 /* global  */
@@ -99,12 +99,14 @@ function isSupportEditor(editor) {
     return isSupportDocument(editor.document);
 }
 
-function createCodeStream(code = '', type = '') {
+function createCodeStream(code = '', filePath = '') {
+
+    let type = filePath.split('.').pop();
 
     let buf = new Buffer(code);
     let file = new File({
         contents: buf,
-        path: 'current-file.' + type,
+        path: filePath || 'current-file.' + type,
         stat: {
             size: buf.length
         }
@@ -198,13 +200,14 @@ function runFecs(editor, needDelay) {
     }
 
     let code = document.getText();
-    let stream = createCodeStream(code, document.fileName.split('.').pop());
+    let stream = createCodeStream(code, document.fileName);
 
     log('runFecs');
 
     editorFecsData.isRunning = true;
     editorFecsData.needCheck = false;
     fecs.check({
+        lookup: true,
         stream: stream,
         reporter: config.en ? '' : 'baidu',
         level: config.level
@@ -229,10 +232,11 @@ function runFecsFormat(editor) {
     }
 
     let code = document.getText();
-    let stream = createCodeStream(code, document.fileName.split('.').pop());
+    let stream = createCodeStream(code, document.fileName);
 
     let bufData = [];
     fecs.format({
+        lookup: true,
         stream: stream,
         reporter: config.en ? '' : 'baidu',
         level: config.level
