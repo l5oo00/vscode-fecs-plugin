@@ -17,6 +17,9 @@ Open the Developer Tools(_Help -> Toggle Developer Tools_), filter the error mes
 
 ## Features
 
+
+### Fecs Check
+
 - fecs for javascript
 
 ![javascript](images/js.png)
@@ -38,6 +41,16 @@ Open the Developer Tools(_Help -> Toggle Developer Tools_), filter the error mes
 ![vue](images/vue.png)
 
 > **Attention:** the gutter icon for this extension will overlap the 'debug break point' icon.
+
+
+- `.fecsrc`
+- `.fecsignore` (coming soon...)
+
+### Fecs Format
+
+- Run command: `fecs format`
+- Shortcuts: `cmd+shift+r`
+
 
 ## Extension Settings
 
