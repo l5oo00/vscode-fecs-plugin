@@ -6,18 +6,16 @@ A better fecs extension for vscode. This is inspired by [SublimeLinter-contrib-f
 
 Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5oo00.vscode-fecs-plugin): `ext install vscode-fecs-plugin`
 
-### Can't work?
 
-Open the Developer Tools(_Help -> Toggle Developer Tools_), filter the error message by keyword `fecs`.
-
-- [Error: Cannot find module 'fecs'](https://github.com/l5oo00/vscode-fecs-plugin/issues/4#issuecomment-312411535)
-- The error message is not shown
+- The error message is not shown on the status bar
     > **Attention:** Sometimes the error message is too long to display, maybe you need [this extension](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css) and this script([script/statusBarItemWidthFix.js](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/scripts/statusBarItemWidthFix.js)).
 
 ## Features
 
 
 ### Fecs Check
+
+> For toggle(on / off) fecs check, run command: `fecs toggle`
 
 - fecs for javascript
 

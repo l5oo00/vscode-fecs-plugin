@@ -3,7 +3,7 @@
   "displayName": "vscode-fecs-plugin",
   "description": "A better fecs extension for vscode.",
   "icon": "images/fecs.png",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "l5oo00",
   "repository": {
     "type": "git",
@@ -94,6 +94,10 @@
       {
         "command": "vscode-fecs-plugin.format",
         "title": "fecs format"
+      },
+      {
+          "command": "vscode-fecs-plugin.toggle",
+          "title": "fecs check toggle"
       }
     ],
     "keybindings": [

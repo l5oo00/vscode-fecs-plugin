@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2017-06-02 21:17:13
  * @last modified by: yanglei07
- * @last modified time: 2017-07-11 18:21:47
+ * @last modified time: 2018-03-20 19:50:45
  */
 
 /* global  */
@@ -56,6 +56,8 @@ let statusBarItem = null;
 
 let warningPointImagePath = '';
 let errorPointImagePath = '';
+
+let checkOff = false;
 
 function log(...args) {
     /* eslint-disable no-console */
@@ -166,6 +168,9 @@ function checkEditorFecsData(document) {
 }
 
 function runFecs(editor, needDelay) {
+    if (checkOff) {
+        return;
+    }
     if (!editor || !editor.document) {
         return;
     }
@@ -440,6 +445,40 @@ function registerFormatCommand() {
     });
 }
 
+function registerToggleCommand() {
+    return vscode.commands.registerCommand('vscode-fecs-plugin.toggle', () => {
+        checkOff = !checkOff;
+
+        let state = 'ON';
+        if (checkOff) {
+            clearDecoration();
+            diagnosticCollection.clear();
+            clearStatusBarMessage();
+            editorFecsDataMap.clear();
+            state = 'OFF';
+        }
+        else {
+            startCheck();
+        }
+        window.showInformationMessage('Fecs Check: ' + state);
+    });
+}
+function startCheck() {
+    window.visibleTextEditors.forEach(function (editor, i) {
+        runFecs(editor);
+    });
+}
+function clearDecoration() {
+    for (let item of editorFecsDataMap.values()) {
+
+        let old = item.oldDecorationTypeList;
+        if (old.length) {
+            old.forEach(type => type.dispose());
+            item.oldDecorationTypeList = [];
+        }
+    }
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 function activate(context) {
@@ -487,6 +526,9 @@ function activate(context) {
 
     // 编辑文档后触发(coding...)
     workspace.onDidChangeTextDocument(function (event) {
+        if (checkOff) {
+            return;
+        }
         log('workspace.onDidChangeTextDocument');
         let editor = window.activeTextEditor;
         let document = event.document;
@@ -504,12 +546,11 @@ function activate(context) {
         showErrorMessageInStatusBar(editor);
     });
 
-    window.onDidChangeVisibleTextEditors(function (editors) {
-        log('window.onDidChangeVisibleTextEditors');
-    });
-
     // 切换文件 tab 后触发
     window.onDidChangeActiveTextEditor(function (editor) {
+        if (checkOff) {
+            return;
+        }
         if (!editor) {
             return;
         }
@@ -535,6 +576,9 @@ function activate(context) {
 
     // 光标移动后触发
     window.onDidChangeTextEditorSelection(function (event) {
+        if (checkOff) {
+            return;
+        }
         log('window.onDidChangeTextEditorSelection');
 
         if (!event.textEditor || !event.textEditor.document || !isSupportDocument(event.textEditor.document)) {
@@ -546,12 +590,10 @@ function activate(context) {
         }
     });
 
-
-    window.visibleTextEditors.forEach(function (editor, i) {
-        runFecs(editor);
-    });
+    startCheck();
 
     context.subscriptions.push(registerFormatCommand());
+    context.subscriptions.push(registerToggleCommand());
 }
 exports.activate = activate;
 
