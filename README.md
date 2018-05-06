@@ -13,9 +13,17 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 ## Features
 
 
+### Fecs Format
+
+- Run command: `fecs format`
+- Shortcuts: `cmd+shift+r`
+
+
 ### Fecs Check
 
-> For toggle(on / off) fecs check, run command: `fecs toggle`
+- support `.fecsrc`
+
+- support toggle(on / off) fecs check, run command: `fecs toggle`
 
 - fecs for javascript
 
@@ -38,15 +46,6 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 ![vue](images/vue.png)
 
 > **Attention:** the gutter icon for this extension will overlap the 'debug break point' icon.
-
-
-- `.fecsrc`
-- `.fecsignore` (coming soon...)
-
-### Fecs Format
-
-- Run command: `fecs format`
-- Shortcuts: `cmd+shift+r`
 
 
 ## Extension Settings
