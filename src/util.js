@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 18:24:6
  * @last modified by: yanglei07
- * @last modified time: 2018-05-31 18:27:36
+ * @last modified time: 2018-06-02 18:24:33
  */
 
 /* global  */
@@ -29,6 +29,8 @@ function isSupportDocument(document) {
     let fileName = document.fileName || '';
     let ext = fileName.split('.').pop();
 
+    // @todo 没有扩展名的文件， 根据语言来识别
+
     let support = config.typeMap.has(ext);
     if (!support) {
         return false;
@@ -46,3 +48,8 @@ function isSupportDocument(document) {
     return support;
 }
 exports.isSupportDocument = isSupportDocument;
+
+function isSupportEditor(editor) {
+    return isSupportDocument(editor.document);
+}
+exports.isSupportEditor = isSupportEditor;

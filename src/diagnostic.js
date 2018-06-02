@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 19:20:47
  * @last modified by: yanglei07
- * @last modified time: 2018-05-31 19:51:51
+ * @last modified time: 2018-06-02 18:32:0
  */
 
 /* global  */
@@ -52,3 +52,5 @@ function showDiagnostics(editor) {
     diagnosticCollection.set(uri, diagnostics);
 }
 exports.showDiagnostics = showDiagnostics;
+
+exports.clearDiagnostics = () => diagnosticCollection.clear();

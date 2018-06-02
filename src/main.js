@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-05-31 20:21:13
+ * @last modified time: 2018-06-02 19:03:50
  */
 
 /* global  */
@@ -12,15 +12,30 @@
 /* eslint-disable fecs-camelcase */
 /* eslint-enable fecs-camelcase */
 'use strict';
-
 const vscode = require('vscode');
 
-const {window, workspace, languages} = vscode;
+const fecs = require('./fecs.js');
+const {log, isSupportDocument, isSupportEditor} = require('./util.js');
+const editorLib = require('./editor.js');
 
+const {window, workspace} = vscode;
+
+let checkOff = false;
+
+function checkAllVisibleTextEditor() {
+    window.visibleTextEditors.forEach(e => {
+        if (!isSupportEditor(e)) {
+            return;
+        }
+
+        editorLib.wrap(e).check();
+    });
+}
 
 function activate(context) {
 
-    if (!fecs) {
+    // @todo
+    if (!fecs.imported) {
         window.showInformationMessage([
             'vscode-fecs-plugin: view the github repository(',
             ' https://github.com/l5oo00/vscode-fecs-plugin ',
@@ -33,41 +48,30 @@ function activate(context) {
         ].join(''));
         return;
     }
+    log(' is active!');
 
-    extContext = context;
-    warningPointImagePath = extContext.asAbsolutePath('images/warning.svg');
-    errorPointImagePath = extContext.asAbsolutePath('images/error.svg');
+    workspace.onDidCloseTextDocument(document => {
+        log('workspace.onDidCloseTextDocument', document.fileName);
 
-    let configuration = workspace.getConfiguration('vscode-fecs-plugin');
-    config.en = configuration.get('en', false);
-    config.level = configuration.get('level', 0);
-    setTypeMap(configuration);
-    config.excludePaths = configuration.get('excludePaths', []);
-    config.excludeFileNameSuffixes = configuration.get('excludeFileNameSuffixes', []);
-
-    workspace.onDidCloseTextDocument(function (document) {
-        log('workspace.onDidCloseTextDocument');
-        if (!isSupportDocument(document)) {
-            return;
-        }
-        checkEditorFecsData(document);
-
-        if (document && document.uri) {
-            diagnosticCollection.delete(document.uri);
-        }
-
-        if (!window.activeTextEditor) {
-            clearStatusBarMessage();
-        }
-    });
-
-    // 编辑文档后触发(coding...)
-    workspace.onDidChangeTextDocument(function (event) {
         if (checkOff) {
             return;
         }
-        log('workspace.onDidChangeTextDocument');
-        let editor = window.activeTextEditor;
+
+        if (!isSupportDocument(document)) {
+            return;
+        }
+
+        editorLib.dispose();
+    });
+
+    // 编辑文档后触发(coding...)
+    workspace.onDidChangeTextDocument(event => {
+        log('workspace.onDidChangeTextDocument', event.document.fileName);
+
+        if (checkOff) {
+            return;
+        }
+
         let document = event.document;
 
         if (!isSupportDocument(document)) {
@@ -77,64 +81,47 @@ function activate(context) {
         window.visibleTextEditors.filter(e =>
             e.document && e.document.fileName === document.fileName
         ).forEach(e => {
-            (getEditorFecsData(e) || {}).needCheck = true;
-            runFecs(e, true);
+            editorLib.wrap(e).check();
         });
-        showErrorMessageInStatusBar(editor);
     });
 
     // 切换文件 tab 后触发
-    window.onDidChangeActiveTextEditor(function (editor) {
+    window.onDidChangeActiveTextEditor(editor => {
+        log('window.onDidChangeActiveTextEditor: ', editor.document.fileName);
+
         if (checkOff) {
             return;
         }
+
+        // editor 为 undefined 或不支持的文档时， 清除错误信息的渲染
+        editorLib.switch(editor);
+
         if (!editor) {
             return;
         }
-        log('window.onDidChangeActiveTextEditor: ', editor.id);
 
-        diagnosticCollection.clear();
-        showErrorMessageInStatusBar(editor);
-        showDiagnostics(editor);
-
-        window.visibleTextEditors.forEach(function (e, i) {
-            if (!isSupportEditor(e)) {
-                return;
-            }
-            runFecs(e, true);
-        });
-
-        // if (!isSupportEditor(editor)) {
-        //     return;
-        // }
-
-        // runFecs(editor, true);
+        checkAllVisibleTextEditor();
     });
 
     // 光标移动后触发
-    window.onDidChangeTextEditorSelection(function (event) {
+    window.onDidChangeTextEditorSelection(event => {
+        log('window.onDidChangeTextEditorSelection', event.textEditor.document.fileName);
+
         if (checkOff) {
             return;
         }
-        log('window.onDidChangeTextEditorSelection');
 
-        if (!event.textEditor || !event.textEditor.document || !isSupportDocument(event.textEditor.document)) {
+        let editor = event.textEditor;
+        if (!isSupportEditor(editor)) {
             return;
         }
 
-        if (event.textEditor === window.activeTextEditor) {
-            showErrorMessageInStatusBar(event.textEditor);
-        }
+        editorLib.wrap(editor).renderErrors();
     });
 
-    startCheck();
-
-    context.subscriptions.push(registerFormatCommand());
-    context.subscriptions.push(registerToggleCommand());
+    checkAllVisibleTextEditor();
 }
 exports.activate = activate;
 
 // this method is called when your extension is deactivated
-function deactivate() {
-}
-exports.deactivate = deactivate;
+exports.deactivate = () => {};

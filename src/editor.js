@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-05-31 19:59:26
+ * @last modified time: 2018-06-02 19:04:11
  */
 
 /* global  */
@@ -12,8 +12,8 @@
 /* eslint-disable fecs-camelcase */
 /* eslint-enable fecs-camelcase */
 'use strict';
-const util = require('./util.js');
-const {createDiagnostic, showDiagnostics} = require('./diagnostic.js');
+const documentLib = require('./document.js');
+const {createDiagnostic, showDiagnostics, clearDiagnostics} = require('./diagnostic.js');
 const {createDecoration, showDecoration} = require('./decoration.js');
 const statusBar = require('./statusbar.js');
 
@@ -31,19 +31,9 @@ class Editor {
 
         this.clear();
 
-        this.doc = vscEditor.document;
-        this.code = this.doc ? this.doc.getText() : '';
+        this.doc = documentLib.wrap(vscEditor.document);
 
-        editorMap.set(vscEditor.id, this);
-    }
-
-    isSupport() {
-
-        if (!this.doc) {
-            return false;
-        }
-
-        return util.isSupportDocument(this.doc);
+        this.lastRenderErrorMap = null;
     }
 
     clear() {
@@ -63,6 +53,8 @@ class Editor {
         this.errorDecorationList = [];
     }
 
+    check() {}
+    format() {}
     prepareErrors(errors) {
 
         this.clear();
@@ -91,21 +83,57 @@ class Editor {
 
     renderErrors() {
 
-        showDecoration(this);
+        if (this.lastRenderErrorMap !== this.errorMap) {
+            showDecoration(this);
+            showDiagnostics(this);
+        }
         statusBar.showErrorMessage(this);
-        showDiagnostics(this);
+        this.lastRenderErrorMap = this.errorMap;
+    }
+
+    dispose() {
+        this.clear();
+        this.doc.dispose();
+        this.doc = null;
+        this.vscEditor = null;
     }
 }
 
 exports.wrap = vscEditor => {
-    if (!vscEditor) {
-        return null;
-    }
 
     let editor = editorMap.get(vscEditor.id);
 
     if (!editor) {
         editor = new Editor(vscEditor);
+        editorMap.set(vscEditor.id, editor);
     }
     return editor;
+};
+
+exports.dispose = () => {
+
+    let unusedList = [];
+    for (let editor of editorMap.values()) {
+        if (editor.doc.vscDocument.isClosed) {
+            unusedList.push(editor);
+        }
+    }
+
+    unusedList.forEach(editor => {
+        editorMap.delete(editor.id);
+        editor.dispose();
+    });
+
+    // 查漏补缺， 有点多余
+    documentLib.dispose();
+};
+
+exports.switch = vscEditor => {
+
+    clearDiagnostics();
+
+    let editor = vscEditor ? editorMap.get(vscEditor.id) : null;
+    if (editor) {
+        editor.renderErrors();
+    }
 };
