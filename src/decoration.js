@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 19:13:25
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 10:53:2
+ * @last modified time: 2018-06-03 15:26:18
  */
 
 /* global  */
@@ -61,6 +61,7 @@ exports.createDecoration = createDecoration;
 
 
 function decorateEditor(editor, list, type, decorationTypeList) {
+
     if (list.length) {
         let dt = createDecorationType(type);
         decorationTypeList.push(dt);
@@ -69,6 +70,9 @@ function decorateEditor(editor, list, type, decorationTypeList) {
 }
 
 function showDecoration(editor) {
+    editor.decorationTypeList.forEach(type => type.dispose());
+    editor.decorationTypeList = [];
+
     decorateEditor(editor.vscEditor, editor.errorDecorationList, 'error', editor.decorationTypeList);
     decorateEditor(editor.vscEditor, editor.warningDecorationList, 'warning', editor.decorationTypeList);
 }

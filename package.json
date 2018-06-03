@@ -57,8 +57,7 @@
         "vscode-fecs-plugin.cssLikeExt": {
           "default": [
             "css",
-            "less",
-            "scss"
+            "less"
           ],
           "title": "Fecs files with these extensions",
           "type": "array",

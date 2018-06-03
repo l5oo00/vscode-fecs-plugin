@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 13:57:29
+ * @last modified time: 2018-06-03 16:04:26
  */
 
 /* global  */
@@ -69,7 +69,6 @@ function checkAllVisibleTextEditor() {
 
 function activate(context) {
 
-    // @todo
     if (!fecs.imported) {
         window.showInformationMessage([
             'vscode-fecs-plugin: view the github repository(',

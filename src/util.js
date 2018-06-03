@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 18:24:6
  * @last modified by: yanglei07
- * @last modified time: 2018-06-02 18:24:33
+ * @last modified time: 2018-06-03 14:49:28
  */
 
 /* global  */
@@ -25,11 +25,32 @@ function log(...args) {
 }
 exports.log = log;
 
+const languageMap = {
+    javascript: 'js',
+    javascriptreact: 'jsx',
+    css: 'css',
+    less: 'less',
+    scss: 'scss',
+    html: 'html',
+    vue: 'vue',
+    san: 'san'
+};
+function getFileExtName(document) {
+    let fileName = document.fileName || '';
+    let ext = nodePathLib.extname(fileName).substr(1);
+
+    // 没有扩展名的文件， 根据语言来识别
+    if (!ext) {
+        ext = languageMap[document.languageId] || '';
+    }
+    return ext;
+}
+exports.getFileExtName = getFileExtName;
+
 function isSupportDocument(document) {
     let fileName = document.fileName || '';
-    let ext = fileName.split('.').pop();
+    let ext = getFileExtName(document);
 
-    // @todo 没有扩展名的文件， 根据语言来识别
 
     let support = config.typeMap.has(ext);
     if (!support) {

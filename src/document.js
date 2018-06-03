@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-02 16:29:2
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 14:15:37
+ * @last modified time: 2018-06-03 16:18:31
  */
 
 /* global  */
@@ -12,6 +12,8 @@
 /* eslint-disable fecs-camelcase */
 /* eslint-enable fecs-camelcase */
 'use strict';
+const nodePathLib = require('path');
+const util = require('./util.js');
 const fecs = require('./fecs.js');
 
 let documentMap = new Map();
@@ -25,13 +27,32 @@ class Document {
         this.vscDocument = vscDocument;
         this.checkPromise = null;
         this.formatPromise = null;
+
+        this.checkFilePath = this.fileName;
+        this.updateCheckFilePath();
+    }
+    // 没有扩展名的文件（）可能会更改语言，这里需要修正
+    updateCheckFilePath() {
+        let old = this.checkFilePath;
+
+        let ext = util.getFileExtName(this.vscDocument);
+        let extWithPoint = nodePathLib.extname(this.fileName);
+        if (!extWithPoint) {
+            this.checkFilePath += '.' + ext;
+        }
+        else if (extWithPoint === '.') {
+            this.checkFilePath += ext;
+        }
+
+        return old !== this.checkFilePath;
     }
     check() {
         if (this.checkPromise) {
             return this.checkPromise;
         }
 
-        this.checkPromise = fecs.check(this.vscDocument.getText(), this.fileName);
+        this.updateCheckFilePath();
+        this.checkPromise = fecs.check(this.vscDocument.getText(), this.checkFilePath);
 
         this.checkPromise.then(() => {
             this.checkPromise = null;
@@ -44,7 +65,8 @@ class Document {
             return this.formatPromise;
         }
 
-        this.formatPromise = fecs.format(this.vscDocument.getText(), this.fileName);
+        this.updateCheckFilePath();
+        this.formatPromise = fecs.format(this.vscDocument.getText(), this.checkFilePath);
         return this.formatPromise;
     }
     dispose() {

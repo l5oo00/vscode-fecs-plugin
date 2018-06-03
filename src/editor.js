@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 14:23:22
+ * @last modified time: 2018-06-03 16:19:14
  */
 
 /* global  */
@@ -62,8 +62,11 @@ class Editor {
         }
 
         if (!this.needCheck) {
-            this.renderErrors();
-            return;
+            // 文件语言没有改变则直接 render
+            if (!this.doc.updateCheckFilePath()) {
+                this.renderErrors();
+                return;
+            }
         }
 
         if (this.checkDelayTimer) {
@@ -161,7 +164,11 @@ exports.wrap = vscEditor => {
 
     let editor = editorMap.get(vscEditor.id);
 
-    if (!editor) {
+    if (editor) {
+        // vscEditor竟然会变， 这里需要更新下
+        editor.vscEditor = vscEditor;
+    }
+    else {
         editor = new Editor(vscEditor);
         editorMap.set(vscEditor.id, editor);
     }
