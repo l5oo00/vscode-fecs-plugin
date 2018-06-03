@@ -23,6 +23,12 @@
     "configuration": {
       "title": "vscode-fecs-plugin configuration",
       "properties": {
+        "vscode-fecs-plugin.disableCheck": {
+          "default": false,
+          "title": "Disable check by default",
+          "type": "boolean",
+          "description": "Controls if disable check by default when vscode start/restart/reload"
+        },
         "vscode-fecs-plugin.en": {
           "default": false,
           "title": "Fecs use English in output",
@@ -51,7 +57,8 @@
         "vscode-fecs-plugin.cssLikeExt": {
           "default": [
             "css",
-            "less"
+            "less",
+            "scss"
           ],
           "title": "Fecs files with these extensions",
           "type": "array",
@@ -93,11 +100,15 @@
     "commands": [
       {
         "command": "vscode-fecs-plugin.format",
-        "title": "fecs format"
+        "title": "vscode-fecs-plugin: Format"
       },
       {
-          "command": "vscode-fecs-plugin.toggle",
-          "title": "fecs check toggle"
+          "command": "vscode-fecs-plugin.enable-check",
+          "title": "vscode-fecs-plugin: Enable check"
+      },
+      {
+          "command": "vscode-fecs-plugin.disable-check",
+          "title": "vscode-fecs-plugin: Disable check"
       }
     ],
     "keybindings": [

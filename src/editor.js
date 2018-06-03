@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 11:30:20
+ * @last modified time: 2018-06-03 14:23:22
  */
 
 /* global  */
@@ -19,7 +19,7 @@ const {createDecoration, showDecoration} = require('./decoration.js');
 const statusBar = require('./statusbar.js');
 const log = require('./util.js').log;
 
-const window = vscode.window;
+const {window, Position, Range} = vscode;
 
 let editorMap = new Map();
 
@@ -29,9 +29,10 @@ class Editor {
         this.id = vscEditor.id;
         this.fileName = vscEditor.document ? vscEditor.document.fileName : '';
 
-        this.delayTimer = null;
-        this.isRunning = false;
+        this.checkDelayTimer = null;
         this.needCheck = true;
+        this.isCheckRunning = false;
+        this.isFormatRunning = false;
 
         this.clear();
 
@@ -56,7 +57,7 @@ class Editor {
     }
 
     check(needDelay) {
-        if (this.isRunning) {
+        if (this.isCheckRunning) {
             return;
         }
 
@@ -65,32 +66,52 @@ class Editor {
             return;
         }
 
-        if (this.delayTimer) {
-            clearTimeout(this.delayTimer);
-            this.delayTimer = null;
+        if (this.checkDelayTimer) {
+            clearTimeout(this.checkDelayTimer);
+            this.checkDelayTimer = null;
         }
 
         if (needDelay === true) {
-            this.delayTimer = setTimeout(() => {
+            this.checkDelayTimer = setTimeout(() => {
                 this.check();
             }, 1000);
             return;
         }
 
-        this.isRunning = true;
+        this.isCheckRunning = true;
         this.needCheck = false;
         this.doc.check().then(errors => {
             log('checkDone! Error count: ', errors.length);
             this.prepareErrors(errors);
             this.renderErrors();
-            this.isRunning = false;
+            this.isCheckRunning = false;
         }).catch(err => {
             log(err);
-            this.isRunning = false;
+            this.isCheckRunning = false;
             this.needCheck = true;
         });
     }
-    format() {}
+    format() {
+        if (this.isFormatRunning) {
+            return;
+        }
+
+        this.isFormatRunning = true;
+
+        this.doc.format().then(code => {
+            let startPos = new Position(0, 0);
+            let endPos = new Position(this.doc.vscDocument.lineCount, 0);
+            let range = new Range(startPos, endPos);
+
+            window.activeTextEditor.edit(editBuilder => {
+                editBuilder.replace(range, code);
+                this.isFormatRunning = false;
+                window.showInformationMessage('Format Success!');
+            });
+        }).catch(err => {
+            this.isFormatRunning = false;
+        });
+    }
     prepareErrors(errors) {
 
         this.clear();
@@ -130,7 +151,7 @@ class Editor {
 
     dispose() {
         this.clear();
-        this.doc.dispose();
+        // this.doc.dispose();
         this.doc = null;
         this.vscEditor = null;
     }

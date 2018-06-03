@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 10:56:50
+ * @last modified time: 2018-06-03 13:57:29
  */
 
 /* global  */
@@ -18,11 +18,45 @@ const fecs = require('./fecs.js');
 const {log, isSupportDocument, isSupportEditor} = require('./util.js');
 const editorLib = require('./editor.js');
 const ctxLib = require('./context.js');
+const config = require('./config.js');
 
-const {window, workspace} = vscode;
+const {window, workspace, commands} = vscode;
 
-let checkOff = false;
+let disableCheck = config.disableCheck;
 
+function registerFormatCommand() {
+    return commands.registerCommand('vscode-fecs-plugin.format', () => {
+        let editor = window.activeTextEditor;
+        if (!editor || !isSupportEditor(editor)) {
+            return;
+        }
+
+        if (!isSupportEditor(editor)) {
+            return;
+        }
+
+        editorLib.wrap(editor).format();
+    });
+}
+
+function registerDisableCheckCommand() {
+    return commands.registerCommand('vscode-fecs-plugin.disable-check', () => {
+        disableCheck = true;
+        editorLib.dispose();
+        window.showInformationMessage('Fecs Check: OFF');
+    });
+}
+function registerEnableCheckCommand() {
+    return commands.registerCommand('vscode-fecs-plugin.enable-check', () => {
+        disableCheck = false;
+        checkAllVisibleTextEditor();
+        window.showInformationMessage('Fecs Check: ON');
+    });
+}
+
+/**
+ * 检查所有窗口及内容可见的文件， 一般数量和编辑器拆分数量一致
+ */
 function checkAllVisibleTextEditor() {
     window.visibleTextEditors.forEach(e => {
         if (!isSupportEditor(e)) {
@@ -53,10 +87,11 @@ function activate(context) {
 
     ctxLib.set(context);
 
+    // 该文档的所有 tab 都被关闭后触发
     workspace.onDidCloseTextDocument(document => {
         log('workspace.onDidCloseTextDocument', document.fileName);
 
-        if (checkOff) {
+        if (disableCheck) {
             return;
         }
 
@@ -71,7 +106,7 @@ function activate(context) {
     workspace.onDidChangeTextDocument(event => {
         log('workspace.onDidChangeTextDocument', event.document.fileName);
 
-        if (checkOff) {
+        if (disableCheck) {
             return;
         }
 
@@ -90,11 +125,11 @@ function activate(context) {
         });
     });
 
-    // 切换文件 tab 后触发
+    // 切换文件 Tab (或关闭某一 Tab)后触发
     window.onDidChangeActiveTextEditor(editor => {
         log('window.onDidChangeActiveTextEditor: ', editor.document.fileName);
 
-        if (checkOff) {
+        if (disableCheck) {
             return;
         }
 
@@ -112,7 +147,7 @@ function activate(context) {
     window.onDidChangeTextEditorSelection(event => {
         log('window.onDidChangeTextEditorSelection', event.textEditor.document.fileName);
 
-        if (checkOff) {
+        if (disableCheck) {
             return;
         }
 
@@ -124,6 +159,12 @@ function activate(context) {
         editorLib.wrap(editor).renderErrors();
     });
 
+
+    context.subscriptions.push(registerFormatCommand());
+    context.subscriptions.push(registerDisableCheckCommand());
+    context.subscriptions.push(registerEnableCheckCommand());
+
+    // 启动时检查一遍
     checkAllVisibleTextEditor();
 }
 exports.activate = activate;

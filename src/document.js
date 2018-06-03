@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-02 16:29:2
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 10:41:51
+ * @last modified time: 2018-06-03 14:15:37
  */
 
 /* global  */
@@ -73,7 +73,7 @@ exports.dispose = () => {
     }
 
     unusedList.forEach(document => {
-        documentMap.delete(document.id);
+        documentMap.delete(document.fileName);
         document.dispose();
     });
 };
