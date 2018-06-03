@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 18:24:6
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 14:49:28
+ * @last modified time: 2018-06-03 19:26:32
  */
 
 /* global  */
@@ -47,26 +47,39 @@ function getFileExtName(document) {
 }
 exports.getFileExtName = getFileExtName;
 
-function isSupportDocument(document) {
-    let fileName = document.fileName || '';
-    let ext = getFileExtName(document);
+function isSupportFilePath(filePath, ext = '') {
 
+    if (!ext) {
+        ext = nodePathLib.extname(filePath).substr(1);
+    }
+
+    if (!ext) {
+        return false;
+    }
 
     let support = config.typeMap.has(ext);
     if (!support) {
         return false;
     }
 
-    support = config.excludePaths.every(path => fileName.indexOf(nodePathLib.sep + path + nodePathLib.sep) === -1);
+    support = config.excludePaths.every(path => filePath.indexOf(nodePathLib.sep + path + nodePathLib.sep) === -1);
     if (!support) {
-        // log('uncheck by path: ', fileName);
+        // log('uncheck by path: ', filePath);
         return false;
     }
 
-    support = config.excludeFileNameSuffixes.every(suffix => !fileName.endsWith(suffix));
-    // !support && log('uncheck by suffix: ', fileName);
+    support = config.excludeFileNameSuffixes.every(suffix => !filePath.endsWith(suffix));
+    // !support && log('uncheck by suffix: ', filePath);
 
     return support;
+}
+exports.isSupportFilePath = isSupportFilePath;
+
+function isSupportDocument(document) {
+    let fileName = document.fileName || '';
+    let ext = getFileExtName(document);
+
+    return isSupportFilePath(fileName, ext);
 }
 exports.isSupportDocument = isSupportDocument;
 

@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-02 16:29:2
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 16:18:31
+ * @last modified time: 2018-06-03 20:31:19
  */
 
 /* global  */
@@ -13,7 +13,7 @@
 /* eslint-enable fecs-camelcase */
 'use strict';
 const nodePathLib = require('path');
-const util = require('./util.js');
+const {getFileExtName, isSupportFilePath} = require('./util.js');
 const fecs = require('./fecs.js');
 
 let documentMap = new Map();
@@ -29,13 +29,14 @@ class Document {
         this.formatPromise = null;
 
         this.checkFilePath = this.fileName;
+        this.FileExtName = getFileExtName(vscDocument);
         this.updateCheckFilePath();
     }
     // 没有扩展名的文件（）可能会更改语言，这里需要修正
     updateCheckFilePath() {
         let old = this.checkFilePath;
 
-        let ext = util.getFileExtName(this.vscDocument);
+        let ext = getFileExtName(this.vscDocument);
         let extWithPoint = nodePathLib.extname(this.fileName);
         if (!extWithPoint) {
             this.checkFilePath += '.' + ext;
@@ -43,6 +44,7 @@ class Document {
         else if (extWithPoint === '.') {
             this.checkFilePath += ext;
         }
+        this.FileExtName = ext;
 
         return old !== this.checkFilePath;
     }
@@ -52,7 +54,13 @@ class Document {
         }
 
         this.updateCheckFilePath();
-        this.checkPromise = fecs.check(this.vscDocument.getText(), this.checkFilePath);
+
+        if (this.FileExtName === 'vue' || this.FileExtName === 'san') {
+            this.checkPromise = this.checkVueOrSan(this.vscDocument.getText(), this.checkFilePath);
+        }
+        else {
+            this.checkPromise = fecs.check(this.vscDocument.getText(), this.checkFilePath);
+        }
 
         this.checkPromise.then(() => {
             this.checkPromise = null;
@@ -68,6 +76,91 @@ class Document {
         this.updateCheckFilePath();
         this.formatPromise = fecs.format(this.vscDocument.getText(), this.checkFilePath);
         return this.formatPromise;
+    }
+    checkVueOrSan(code, filePath) {
+        let blocks = this.splitVueOrSanCode(code, filePath);
+
+        let task = blocks.map(
+            block => fecs.check(block.content, block.filePath)
+                .then(errors => {
+                    errors.forEach(err => {
+                        err.line += block.lineBeginIndex - block.wrapLineCount;
+                    });
+                    return errors;
+                })
+        );
+
+        return Promise.all(task).then(errList => {
+            let list = [];
+            errList.forEach(errors => {
+                list = list.concat(errors);
+            });
+            return list;
+        });
+    }
+    splitVueOrSanCode(code, filePath) {
+        let vscDocument = this.vscDocument;
+
+        let templateReg = /(<template(.*)>)([\s\S]+)(<\/template>)/g;
+        let scriptReg = /(<script(.*)>)([\s\S]+)(<\/script>)/g;
+        let styleReg = /(<style(.*)>)([\s\S]+)(<\/style>)/g;
+
+        let blocks = [];
+        let index = 0;
+
+        // 暂时只对 js 进行 wrap
+        function wrapCode(block) {
+            let {content, lang} = block;
+            if (lang === 'js') {
+                let wrap = '/**\n * @file: x.js\n * @author: x\n*/';
+                block.content = wrap + '\n' + content + '\n';
+                block.wrapLineCount = wrap.split('\n').length;
+            }
+        }
+
+        // 根据正则索引获取行号， 行号从 0 开始
+        function getLineIndexByOffset(offset) {
+            let position = vscDocument.positionAt(offset);
+            let line = vscDocument.lineAt(position);
+            return line.lineNumber;
+        }
+        function exec(reg, type, defaultLang) {
+            let m = reg.exec(code);
+            while (m) {
+                let content = m[3];
+                let codeBegin = m.index + m[1].length;
+                let codeEnd = codeBegin + content.length;
+                let lang = /\slang=['"](.*)['"]/.exec(m[2]) || [];
+                lang = lang[1] || defaultLang;
+
+                let mockFilePath = filePath + '-' + index + '.' + lang;
+
+                if (isSupportFilePath(mockFilePath)) {
+
+                    let block = {
+                        filePath: mockFilePath,
+                        type,
+                        codeBegin,
+                        codeEnd,
+                        lineBeginIndex: getLineIndexByOffset(codeBegin),
+                        lineEndIndex: getLineIndexByOffset(codeEnd),
+                        wrapLineCount: 0,
+                        content,
+                        lang
+                    };
+                    wrapCode(block);
+                    blocks.push(block);
+                }
+
+                m = reg.exec(code);
+            }
+        }
+
+        exec(templateReg, 'template', 'html');
+        exec(scriptReg, 'script', 'js');
+        exec(styleReg, 'style', 'css');
+
+        return blocks;
     }
     dispose() {
         this.vscDocument = null;

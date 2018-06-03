@@ -102,12 +102,12 @@
         "title": "vscode-fecs-plugin: Format"
       },
       {
-          "command": "vscode-fecs-plugin.enable-check",
-          "title": "vscode-fecs-plugin: Enable check"
+        "command": "vscode-fecs-plugin.enable-check",
+        "title": "vscode-fecs-plugin: Enable check"
       },
       {
-          "command": "vscode-fecs-plugin.disable-check",
-          "title": "vscode-fecs-plugin: Disable check"
+        "command": "vscode-fecs-plugin.disable-check",
+        "title": "vscode-fecs-plugin: Disable check"
       }
     ],
     "keybindings": [
