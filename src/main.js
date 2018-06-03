@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-02 19:03:50
+ * @last modified time: 2018-06-03 10:56:50
  */
 
 /* global  */
@@ -17,6 +17,7 @@ const vscode = require('vscode');
 const fecs = require('./fecs.js');
 const {log, isSupportDocument, isSupportEditor} = require('./util.js');
 const editorLib = require('./editor.js');
+const ctxLib = require('./context.js');
 
 const {window, workspace} = vscode;
 
@@ -50,6 +51,8 @@ function activate(context) {
     }
     log(' is active!');
 
+    ctxLib.set(context);
+
     workspace.onDidCloseTextDocument(document => {
         log('workspace.onDidCloseTextDocument', document.fileName);
 
@@ -61,7 +64,7 @@ function activate(context) {
             return;
         }
 
-        editorLib.dispose();
+        editorLib.disposeClosed();
     });
 
     // 编辑文档后触发(coding...)
@@ -81,7 +84,9 @@ function activate(context) {
         window.visibleTextEditors.filter(e =>
             e.document && e.document.fileName === document.fileName
         ).forEach(e => {
-            editorLib.wrap(e).check();
+            let editor = editorLib.wrap(e);
+            editor.needCheck = true;
+            editor.check(true);
         });
     });
 

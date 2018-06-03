@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 19:35:24
  * @last modified by: yanglei07
- * @last modified time: 2018-05-31 19:56:48
+ * @last modified time: 2018-06-03 11:32:30
  */
 
 /* global  */
@@ -17,18 +17,16 @@ const vscode = require('vscode');
 
 const config = require('./config.js');
 
-const {window, Position} = vscode;
+const window = vscode.window;
 
 let statusBarItem = null;
 
-function showErrorMessage(editor) {
+function showErrorMessage({vscEditor, errorMap}) {
 
-    let vscEditor = editor.vscEditor;
 
     let selection = vscEditor.selection;
     let line = selection.start.line; // 只显示选区第一行的错误信息
 
-    let errorMap = editor.errorMap;
     let errList = [];
 
     if (errorMap && errorMap.has(line)) {

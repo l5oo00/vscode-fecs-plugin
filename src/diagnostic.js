@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 19:20:47
  * @last modified by: yanglei07
- * @last modified time: 2018-06-02 18:32:0
+ * @last modified time: 2018-06-03 11:31:23
  */
 
 /* global  */
@@ -15,7 +15,7 @@
 
 const vscode = require('vscode');
 
-const {window, languages, Diagnostic, Position} = vscode;
+const {languages, Diagnostic, Position, Range} = vscode;
 
 let diagnosticCollection = languages.createDiagnosticCollection('fecs');
 
@@ -41,13 +41,10 @@ exports.createDiagnostic = createDiagnostic;
  */
 function showDiagnostics(editor) {
 
-    let uri = editor.doc.uri;
+    let uri = editor.doc.vscDocument.uri;
     let diagnostics = editor.diagnostics;
 
-    if (window.activeTextEditor !== editor.vscEditor) {
-        diagnosticCollection.delete(uri);
-        return;
-    }
+    diagnosticCollection.clear();
 
     diagnosticCollection.set(uri, diagnostics);
 }

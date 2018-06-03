@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 19:13:25
  * @last modified by: yanglei07
- * @last modified time: 2018-05-31 19:46:15
+ * @last modified time: 2018-06-03 10:53:2
  */
 
 /* global  */
@@ -18,7 +18,7 @@ const vscode = require('vscode');
 const config = require('./config.js');
 const pluginContextFactory = require('./context.js');
 
-const {window, Position} = vscode;
+const {window, Position, Range} = vscode;
 
 let warningPointImagePath = '';
 let errorPointImagePath = '';
@@ -60,10 +60,10 @@ function createDecoration(lineIndex) {
 exports.createDecoration = createDecoration;
 
 
-function decorateEditor(editor, list, type, oldDecorationTypeList) {
+function decorateEditor(editor, list, type, decorationTypeList) {
     if (list.length) {
         let dt = createDecorationType(type);
-        oldDecorationTypeList.push(dt);
+        decorationTypeList.push(dt);
         editor.setDecorations(dt, list);
     }
 }

@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 15:49:22
  * @last modified by: yanglei07
- * @last modified time: 2018-05-31 17:21:12
+ * @last modified time: 2018-06-03 10:35:9
  */
 
 /* global  */
@@ -61,7 +61,9 @@ function check(code = '', filePath = '') {
             reporter: config.en ? '' : 'baidu',
             level: config.level
         }, (success, json) => {
-            r(json);
+
+            let errors = (json[0] || {}).errors || [];
+            r(errors);
         });
     });
 

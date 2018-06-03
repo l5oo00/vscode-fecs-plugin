@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-02 16:29:2
  * @last modified by: yanglei07
- * @last modified time: 2018-06-02 18:09:23
+ * @last modified time: 2018-06-03 10:41:51
  */
 
 /* global  */
@@ -32,6 +32,11 @@ class Document {
         }
 
         this.checkPromise = fecs.check(this.vscDocument.getText(), this.fileName);
+
+        this.checkPromise.then(() => {
+            this.checkPromise = null;
+        });
+
         return this.checkPromise;
     }
     format() {

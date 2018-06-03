@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-02 19:04:11
+ * @last modified time: 2018-06-03 11:30:20
  */
 
 /* global  */
@@ -12,10 +12,14 @@
 /* eslint-disable fecs-camelcase */
 /* eslint-enable fecs-camelcase */
 'use strict';
+const vscode = require('vscode');
 const documentLib = require('./document.js');
 const {createDiagnostic, showDiagnostics, clearDiagnostics} = require('./diagnostic.js');
 const {createDecoration, showDecoration} = require('./decoration.js');
 const statusBar = require('./statusbar.js');
+const log = require('./util.js').log;
+
+const window = vscode.window;
 
 let editorMap = new Map();
 
@@ -32,8 +36,6 @@ class Editor {
         this.clear();
 
         this.doc = documentLib.wrap(vscEditor.document);
-
-        this.lastRenderErrorMap = null;
     }
 
     clear() {
@@ -53,7 +55,41 @@ class Editor {
         this.errorDecorationList = [];
     }
 
-    check() {}
+    check(needDelay) {
+        if (this.isRunning) {
+            return;
+        }
+
+        if (!this.needCheck) {
+            this.renderErrors();
+            return;
+        }
+
+        if (this.delayTimer) {
+            clearTimeout(this.delayTimer);
+            this.delayTimer = null;
+        }
+
+        if (needDelay === true) {
+            this.delayTimer = setTimeout(() => {
+                this.check();
+            }, 1000);
+            return;
+        }
+
+        this.isRunning = true;
+        this.needCheck = false;
+        this.doc.check().then(errors => {
+            log('checkDone! Error count: ', errors.length);
+            this.prepareErrors(errors);
+            this.renderErrors();
+            this.isRunning = false;
+        }).catch(err => {
+            log(err);
+            this.isRunning = false;
+            this.needCheck = true;
+        });
+    }
     format() {}
     prepareErrors(errors) {
 
@@ -83,12 +119,13 @@ class Editor {
 
     renderErrors() {
 
-        if (this.lastRenderErrorMap !== this.errorMap) {
-            showDecoration(this);
+        showDecoration(this);
+
+        // 需要判断当前 editor 是否 active
+        if (this.vscEditor === window.activeTextEditor) {
             showDiagnostics(this);
+            statusBar.showErrorMessage(this);
         }
-        statusBar.showErrorMessage(this);
-        this.lastRenderErrorMap = this.errorMap;
     }
 
     dispose() {
@@ -110,7 +147,31 @@ exports.wrap = vscEditor => {
     return editor;
 };
 
+function clearErrorRenderOutOfEditor() {
+    clearDiagnostics();
+    statusBar.clear();
+}
+
+/**
+ * toggle off 时调用
+ */
 exports.dispose = () => {
+
+    clearErrorRenderOutOfEditor();
+
+    for (let editor of editorMap.values()) {
+        editor.dispose();
+    }
+    editorMap.clear();
+
+    // 查漏补缺， 有点多余
+    documentLib.dispose();
+};
+
+/**
+ * 关闭某个文档时遍历检查
+ */
+exports.disposeClosed = () => {
 
     let unusedList = [];
     for (let editor of editorMap.values()) {
@@ -128,9 +189,14 @@ exports.dispose = () => {
     documentLib.dispose();
 };
 
+/**
+ * 切换编辑器 tab 时调用
+ *
+ * @param {TextEditor} vscEditor TextEditor
+ */
 exports.switch = vscEditor => {
 
-    clearDiagnostics();
+    clearErrorRenderOutOfEditor();
 
     let editor = vscEditor ? editorMap.get(vscEditor.id) : null;
     if (editor) {
