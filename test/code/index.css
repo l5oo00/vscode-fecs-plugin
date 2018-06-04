@@ -1,0 +1,11 @@
+body{
+    margin: 0px;
+    padding:0
+}
+
+a{
+    -webkit-box-shadow: 0 0 1px 0 #333;
+    box-shadow: 0 0 1px 0 #333;
+    -moz-box-shadow: 0 0 1px 0 #333;
+}
+

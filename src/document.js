@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-02 16:29:2
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 20:31:19
+ * @last modified time: 2018-06-04 09:38:31
  */
 
 /* global  */
@@ -74,11 +74,22 @@ class Document {
         }
 
         this.updateCheckFilePath();
-        this.formatPromise = fecs.format(this.vscDocument.getText(), this.checkFilePath);
+
+        if (this.FileExtName === 'vue' || this.FileExtName === 'san') {
+            this.formatPromise = this.formatVueOrSan(this.vscDocument.getText(), this.checkFilePath);
+        }
+        else {
+            this.formatPromise = fecs.format(this.vscDocument.getText(), this.checkFilePath);
+        }
+
+        this.formatPromise.then(() => {
+            this.formatPromise = null;
+        });
+
         return this.formatPromise;
     }
     checkVueOrSan(code, filePath) {
-        let blocks = this.splitVueOrSanCode(code, filePath);
+        let blocks = this.splitVueOrSanCode(code, filePath, true);
 
         let task = blocks.map(
             block => fecs.check(block.content, block.filePath)
@@ -98,7 +109,32 @@ class Document {
             return list;
         });
     }
-    splitVueOrSanCode(code, filePath) {
+    formatVueOrSan(code, filePath) {
+        let blocks = this.splitVueOrSanCode(code, filePath);
+
+        let task = blocks.map(
+            block => fecs.format(block.content, block.filePath)
+                .then(formatContent => {
+                    block.formatContent = formatContent;
+                    return block;
+                })
+        );
+
+        return Promise.all(task).then(blockList => {
+            let index = 0;
+            let list = [];
+            blockList.forEach(block => {
+                if (index !== block.codeBegin) {
+                    list.push(code.substr(index, block.codeBegin - index));
+                    list.push(block.formatContent);
+                    index = block.codeEnd;
+                }
+            });
+            list.push(code.substr(index));
+            return list.join('');
+        });
+    }
+    splitVueOrSanCode(code, filePath, needWrapCode = false) {
         let vscDocument = this.vscDocument;
 
         let templateReg = /(<template(.*)>)([\s\S]+)(<\/template>)/g;
@@ -124,7 +160,7 @@ class Document {
             let line = vscDocument.lineAt(position);
             return line.lineNumber;
         }
-        function exec(reg, type, defaultLang) {
+        function exec(reg, defaultLang) {
             let m = reg.exec(code);
             while (m) {
                 let content = m[3];
@@ -139,7 +175,6 @@ class Document {
 
                     let block = {
                         filePath: mockFilePath,
-                        type,
                         codeBegin,
                         codeEnd,
                         lineBeginIndex: getLineIndexByOffset(codeBegin),
@@ -148,7 +183,11 @@ class Document {
                         content,
                         lang
                     };
-                    wrapCode(block);
+
+                    if (needWrapCode) {
+                        wrapCode(block);
+                    }
+
                     blocks.push(block);
                 }
 
@@ -156,9 +195,9 @@ class Document {
             }
         }
 
-        exec(templateReg, 'template', 'html');
-        exec(scriptReg, 'script', 'js');
-        exec(styleReg, 'style', 'css');
+        exec(templateReg, 'html');
+        exec(scriptReg, 'js');
+        exec(styleReg, 'css');
 
         return blocks;
     }
