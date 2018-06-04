@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 16:04:26
+ * @last modified time: 2018-06-04 09:57:30
  */
 
 /* global  */
@@ -69,19 +69,6 @@ function checkAllVisibleTextEditor() {
 
 function activate(context) {
 
-    if (!fecs.imported) {
-        window.showInformationMessage([
-            'vscode-fecs-plugin: view the github repository(',
-            ' https://github.com/l5oo00/vscode-fecs-plugin ',
-            ') for details.'
-        ].join(''));
-        window.showErrorMessage([
-            'vscode-fecs-plugin: Error: Can\'t find module: fecs. ',
-            'Maybe you should install the fecs module in global ',
-            'and set the correct NODE_PATH environment variable.'
-        ].join(''));
-        return;
-    }
     log(' is active!');
 
     ctxLib.set(context);
@@ -99,6 +86,12 @@ function activate(context) {
         }
 
         editorLib.disposeClosed();
+
+        // 关闭全部窗口后， 可能不会触发  window.onDidChangeActiveTextEditor
+        // 在这里做下兼容
+        if (!window.activeTextEditor) {
+            editorLib.switch();
+        }
     });
 
     // 编辑文档后触发(coding...)

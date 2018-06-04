@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 16:19:14
+ * @last modified time: 2018-06-04 11:11:40
  */
 
 /* global  */
@@ -55,6 +55,12 @@ class Editor {
         this.warningDecorationList = [];
         this.errorDecorationList = [];
     }
+    clearCheckDelayTimer() {
+        if (this.checkDelayTimer) {
+            clearTimeout(this.checkDelayTimer);
+            this.checkDelayTimer = null;
+        }
+    }
 
     check(needDelay) {
         if (this.isCheckRunning) {
@@ -69,10 +75,7 @@ class Editor {
             }
         }
 
-        if (this.checkDelayTimer) {
-            clearTimeout(this.checkDelayTimer);
-            this.checkDelayTimer = null;
-        }
+        this.clearCheckDelayTimer();
 
         if (needDelay === true) {
             this.checkDelayTimer = setTimeout(() => {
@@ -154,7 +157,7 @@ class Editor {
 
     dispose() {
         this.clear();
-        // this.doc.dispose();
+        this.clearCheckDelayTimer();
         this.doc = null;
         this.vscEditor = null;
     }

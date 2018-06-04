@@ -6,52 +6,44 @@ A better fecs extension for vscode. This is inspired by [SublimeLinter-contrib-f
 
 Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5oo00.vscode-fecs-plugin): `ext install vscode-fecs-plugin`
 
-
-- The error message is not shown on the status bar
-    > **Attention:** Sometimes the error message is too long to display, maybe you need [this extension](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css) and this script([script/statusBarItemWidthFix.js](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/scripts/statusBarItemWidthFix.js)).
-
 ## Features
 
 
 ### Fecs Format
 
-- Run command: `fecs format`
+- Run command: `vscode-fecs-plugin: Format`
 - Shortcuts: `cmd+shift+r`
-
 
 ### Fecs Check
 
-- support `.fecsrc`
-
-- support toggle(on / off) fecs check, run command: `fecs toggle`
-
-- fecs for javascript
-
-![javascript](images/js.png)
-
-- fecs for css
-
-![css](images/css.png)
-
-- fecs for less
-
-![less](images/less.png)
-
-- fecs for html
-
-![html](images/html.png)
-
-- fecs for vue
-
-![vue](images/vue.png)
+- Auto check
+- Support `.fecsrc`
+- Support disable/enable check, run command:
+  - `vscode-fecs-plugin: Disable check`
+  - `vscode-fecs-plugin: Enable check`
+- [Demo](demo.md)
+  ![javascript](images/js.png)
 
 > **Attention:** the gutter icon for this extension will overlap the 'debug break point' icon.
 
+> **Attention:** Sometimes the error message is too long to display in statusbar, maybe you need [this extension](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css) and this script([script/statusBarItemWidthFix.js](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/scripts/statusBarItemWidthFix.js)).
+
+### Support File Type
+
+> Use the extension name to do support detection. When the extension name is empty, use the language id set by the current file to detect.
+
+- javascript
+- css
+- less
+- html
+- vue
+- san
 
 ## Extension Settings
 
 This extension contributes the following settings:
 
+- `vscode-fecs-plugin.disableCheck`: Controls if disable check by default when vscode start/restart/reload
 - `vscode-fecs-plugin.en`: Controls if use English in output
 - `vscode-fecs-plugin.level`: Fecs check level. Value is 0 1 or 2
 - `vscode-fecs-plugin.jsLikeExt`: Specified 'js like' files extension that can use fecs.
