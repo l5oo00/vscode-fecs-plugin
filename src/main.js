@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-05 20:11:19
+ * @last modified time: 2018-06-05 20:41:21
  */
 
 /* global  */
@@ -14,7 +14,6 @@
 'use strict';
 const vscode = require('vscode');
 
-const fecs = require('./fecs.js');
 const {log, isSupportDocument, isSupportEditor} = require('./util.js');
 const editorLib = require('./editor.js');
 const ctxLib = require('./context.js');

@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 19:35:24
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 11:32:30
+ * @last modified time: 2018-06-05 20:51:20
  */
 
 /* global  */
@@ -19,7 +19,8 @@ const config = require('./config.js');
 
 const window = vscode.window;
 
-let statusBarItem = null;
+let msgItem = null;
+let ruleItem = null;
 
 function showErrorMessage({vscEditor, errorMap}) {
 
@@ -33,26 +34,32 @@ function showErrorMessage({vscEditor, errorMap}) {
         errList = errorMap.get(line);
     }
 
-    if (!statusBarItem) {
-        statusBarItem = window.createStatusBarItem(1);
-        statusBarItem.show();
+    if (!msgItem) {
+        msgItem = window.createStatusBarItem(1);
+        msgItem.show();
+        ruleItem = window.createStatusBarItem(1);
+        ruleItem.show();
     }
 
-    let showErr = errList[0] || {msg: '', severity: 0};
+    let showErr = errList[0] || {msg: '', rule: '', severity: 0};
 
-    statusBarItem.text = showErr.msg;
-    statusBarItem.color = showErr.severity === 2 ? config.errorColor : config.warningColor;
-    statusBarItem.tooltip = 'fecs:\n\n' + errList.map(err => err.msg).join('\n\n');
+    msgItem.text = showErr.msg;
+    msgItem.color = showErr.severity === 2 ? config.errorColor : config.warningColor;
+    msgItem.tooltip = 'fecs-msg:\n\n' + errList.map(err => err.msg).join('\n\n');
+
+    ruleItem.text = showErr.rule ? ' (rule: ' + showErr.rule + ')' : '';
+    ruleItem.color = showErr.severity === 2 ? config.errorColor : config.warningColor;
+    msgItem.tooltip = 'fecs-rule:\n\n' + errList.map(err => err.rule).join('\n\n');
 }
 exports.showErrorMessage = showErrorMessage;
 
 
 function clear() {
-    if (!statusBarItem) {
+    if (!msgItem) {
         return;
     }
 
-    statusBarItem.text = '';
-    statusBarItem.tooltip = '';
+    msgItem.text = '';
+    msgItem.tooltip = '';
 }
 exports.clear = clear;

@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-04 11:11:40
+ * @last modified time: 2018-06-05 20:49:0
  */
 
 /* global  */
@@ -124,7 +124,7 @@ class Editor {
 
         errors.forEach(err => {
             let lineIndex = err.line - 1;
-            err.msg = err.message.trim() + ' (rule: ' + err.rule + ')';
+            err.msg = err.message.trim();
             this.diagnostics.push(createDiagnostic(err));
             this.errorMap.set(lineIndex, (this.errorMap.get(lineIndex) || []).concat(err));
         });

@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2017-06-09 20:57:21
  * @last modified by: yanglei07
- * @last modified time: 2017-06-09 20:57:21
+ * @last modified time: 2018-06-05 21:06:52
  */
 
 /* global  */
@@ -15,19 +15,19 @@
 
 
 (function () {
-    var domReady = (function () {
+    let domReady = (function () {
         function execFn(fn) {
             try {
                 fn();
             }
             catch (e) {}
         }
-        var isReady = false;
-        var fnArr = [];
+        let isReady = false;
+        let fnArr = [];
         window.addEventListener('DOMContentLoaded', function (e) {
             isReady = true;
 
-            var fn;
+            let fn;
             while (fnArr.length) {
                 fn = fnArr.shift();
                 execFn(fn);
@@ -46,21 +46,22 @@
     })();
 
     function start() {
-        var bar = document.getElementById('workbench.parts.statusbar');
+        let bar = document.getElementById('workbench.parts.statusbar');
 
         if (!bar) {
             setTimeout(start, 1000);
             return;
         }
-        var timer;
-        var observer;
+        let timer;
+        let observer;
 
         function findBarItem() {
-            var item = bar.querySelector('[title^="fecs:"]');
+            let msgItem = bar.querySelector('[title^="fecs-msg:"]');
+            let ruleItem = bar.querySelector('[title^="fecs-rule:"]');
 
-            if (item) {
+            if (msgItem && ruleItem) {
                 // observer.disconnect();
-                fecsStatusBarFix(item, bar);
+                fecsStatusBarFix(msgItem, ruleItem, bar);
             }
         }
         observer = new MutationObserver(function (mutations) {
@@ -74,21 +75,21 @@
             subtree: true
         });
     }
-    function fecsStatusBarFix(item) {
+    function fecsStatusBarFix(msgItem, ruleItem) {
 
-        if (item.offsetTop === 0) {
+        if (msgItem.offsetTop === 0 && ruleItem.offsetTop === 0) {
             return;
         }
 
-        var s = item.style;
+        let s = msgItem.style;
         s.display = 'inline-block';
         s.overflow = 'hidden';
         s.textOverflow = 'ellipsis';
 
-        var w = Math.min(500, item.offsetWidth);
+        let w = Math.min(500, msgItem.offsetWidth);
         s.width = w + 'px';
 
-        while (item.offsetTop > 10 && w > 0) {
+        while (msgItem.offsetTop > 10 && w > 0 && ruleItem.offsetTop > 10) {
             if (w >= 400) {
                 w -= 100;
             }
