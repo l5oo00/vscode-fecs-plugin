@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 15:49:22
  * @last modified by: yanglei07
- * @last modified time: 2018-06-05 12:01:13
+ * @last modified time: 2018-06-05 16:25:4
  */
 
 /* global  */
@@ -98,6 +98,7 @@ function format(code = '', filePath = '') {
 
 /**
  * 通过正则简单判断是否是 es6 语法， 只能覆盖一部分场景， 无法 100% 识别， 但一般基本够用
+ * @note 魔改 fecs 后， 此功能基本成废物了 ： https://github.com/ecomfe/fecs/pull/323
  *
  * @param {string} code 代码字符串
  * @param {string} filePath 代码文件路径

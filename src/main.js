@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-04 09:57:30
+ * @last modified time: 2018-06-05 20:11:19
  */
 
 /* global  */
@@ -119,7 +119,7 @@ function activate(context) {
 
     // 切换文件 Tab (或关闭某一 Tab)后触发
     window.onDidChangeActiveTextEditor(editor => {
-        log('window.onDidChangeActiveTextEditor: ', editor.document.fileName);
+        log('window.onDidChangeActiveTextEditor: ', editor && editor.document && editor.document.fileName);
 
         if (disableCheck) {
             return;
