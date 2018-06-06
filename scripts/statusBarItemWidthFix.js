@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2017-06-09 20:57:21
  * @last modified by: yanglei07
- * @last modified time: 2018-06-05 21:06:52
+ * @last modified time: 2018-06-06 09:30:21
  */
 
 /* global  */
@@ -77,7 +77,7 @@
     }
     function fecsStatusBarFix(msgItem, ruleItem) {
 
-        if (msgItem.offsetTop === 0 && ruleItem.offsetTop === 0) {
+        if (msgItem.offsetTop < 10 && ruleItem.offsetTop < 10) {
             return;
         }
 

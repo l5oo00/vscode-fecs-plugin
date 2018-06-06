@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-05 20:49:0
+ * @last modified time: 2018-06-06 13:44:24
  */
 
 /* global  */
@@ -16,6 +16,7 @@ const vscode = require('vscode');
 const documentLib = require('./document.js');
 const {createDiagnostic, showDiagnostics, clearDiagnostics} = require('./diagnostic.js');
 const {createDecoration, showDecoration} = require('./decoration.js');
+const addDisableComment = require('./comment.js').addDisableComment;
 const statusBar = require('./statusbar.js');
 const log = require('./util.js').log;
 
@@ -109,7 +110,7 @@ class Editor {
             let endPos = new Position(this.doc.vscDocument.lineCount, 0);
             let range = new Range(startPos, endPos);
 
-            window.activeTextEditor.edit(editBuilder => {
+            this.vscEditor.edit(editBuilder => {
                 editBuilder.replace(range, code);
                 this.isFormatRunning = false;
                 window.showInformationMessage('Format Success!');
@@ -155,6 +156,10 @@ class Editor {
         }
     }
 
+    addDisableComment() {
+        addDisableComment(this);
+    }
+
     dispose() {
         this.clear();
         this.clearCheckDelayTimer();
@@ -195,7 +200,6 @@ exports.dispose = () => {
     }
     editorMap.clear();
 
-    // 查漏补缺， 有点多余
     documentLib.dispose();
 };
 
@@ -216,7 +220,6 @@ exports.disposeClosed = () => {
         editor.dispose();
     });
 
-    // 查漏补缺， 有点多余
     documentLib.dispose();
 };
 

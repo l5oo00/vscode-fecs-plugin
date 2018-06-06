@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:07:41
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 13:54:28
+ * @last modified time: 2018-06-06 13:26:3
  */
 
 /* global  */
@@ -22,6 +22,7 @@ let configuration = workspace.getConfiguration('vscode-fecs-plugin');
 
 let config = {
     disableCheck: configuration.get('disableCheck', false),
+    ignoreGlobalEslintDisalbe: configuration.get('ignoreGlobalEslintDisalbe', true),
     en: configuration.get('en', false),
     level: configuration.get('level', 0),
     errorColor: '#f00',

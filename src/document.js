@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-02 16:29:2
  * @last modified by: yanglei07
- * @last modified time: 2018-06-04 09:38:31
+ * @last modified time: 2018-06-06 09:58:26
  */
 
 /* global  */
@@ -22,6 +22,7 @@ let documentMap = new Map();
  * documet 辅助类， 主要负责调用 fecs 来做代码检查和格式化
  */
 class Document {
+
     constructor(vscDocument) {
         this.fileName = vscDocument.fileName;
         this.vscDocument = vscDocument;
@@ -32,6 +33,7 @@ class Document {
         this.FileExtName = getFileExtName(vscDocument);
         this.updateCheckFilePath();
     }
+
     // 没有扩展名的文件（）可能会更改语言，这里需要修正
     updateCheckFilePath() {
         let old = this.checkFilePath;
@@ -48,6 +50,7 @@ class Document {
 
         return old !== this.checkFilePath;
     }
+
     check() {
         if (this.checkPromise) {
             return this.checkPromise;
@@ -68,6 +71,7 @@ class Document {
 
         return this.checkPromise;
     }
+
     format() {
         if (this.formatPromise) {
             return this.formatPromise;
@@ -88,6 +92,7 @@ class Document {
 
         return this.formatPromise;
     }
+
     checkVueOrSan(code, filePath) {
         let blocks = this.splitVueOrSanCode(code, filePath, true);
 
@@ -109,6 +114,7 @@ class Document {
             return list;
         });
     }
+
     formatVueOrSan(code, filePath) {
         let blocks = this.splitVueOrSanCode(code, filePath);
 
@@ -134,6 +140,7 @@ class Document {
             return list.join('');
         });
     }
+
     splitVueOrSanCode(code, filePath, needWrapCode = false) {
         let vscDocument = this.vscDocument;
 
@@ -201,6 +208,7 @@ class Document {
 
         return blocks;
     }
+
     dispose() {
         this.vscDocument = null;
         this.checkPromise = null;
@@ -217,6 +225,7 @@ exports.wrap = vscDocument => {
     }
     return document;
 };
+
 exports.dispose = () => {
 
     let unusedList = [];

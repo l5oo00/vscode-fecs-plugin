@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 15:49:22
  * @last modified by: yanglei07
- * @last modified time: 2018-06-05 20:43:2
+ * @last modified time: 2018-06-06 13:37:36
  */
 
 /* global  */
@@ -13,6 +13,7 @@
 /* eslint-enable fecs-camelcase */
 'use strict';
 const Readable = require('stream').Readable;
+const nodePathLib = require('path');
 
 const File = require('vinyl');
 
@@ -29,6 +30,38 @@ const fecs = (() => {
     return fecsLib;
 })();
 
+function getLinterType(filePath) {
+    let ext = nodePathLib.extname(filePath).substr(1);
+    if (!ext) {
+        return '';
+    }
+
+    if (ext === 'less') {
+        return 'lesslint';
+    }
+
+    let type = config.typeMap.get(ext);
+    if (!type) {
+        return;
+    }
+
+    let linterType = 'eslint';
+
+    switch (type) {
+        case 'css':
+            linterType = 'csshint';
+            break;
+
+        case 'html':
+            linterType = 'htmlcs';
+            break;
+
+        default:
+            linterType = 'eslint';
+            break;
+    }
+    return linterType;
+}
 
 function createCodeStream(code = '', filePath = '') {
 
@@ -52,8 +85,11 @@ function createCodeStream(code = '', filePath = '') {
 
 function check(code = '', filePath = '') {
 
+    code = ignoreGlobalEslintDisalbe(code, filePath);
+
     let fileStream = createCodeStream(code, filePath);
     let isES6 = isUseES6(code, filePath);
+    let linterType = getLinterType(filePath);
 
     let p = new Promise((r, j) => {
         fecs.check({
@@ -65,6 +101,7 @@ function check(code = '', filePath = '') {
         }, (success, json) => {
 
             let errors = (json[0] || {}).errors || [];
+            errors.forEach(err => err.linterType = linterType);
             r(errors);
         });
     });
@@ -73,6 +110,8 @@ function check(code = '', filePath = '') {
 }
 
 function format(code = '', filePath = '') {
+
+    code = ignoreGlobalEslintDisalbe(code, filePath);
 
     let fileStream = createCodeStream(code, filePath);
     let isES6 = isUseES6(code, filePath);
@@ -140,6 +179,18 @@ function isUseES6(code, filePath) {
     ];
 
     return regList.some(reg => reg.test(code));
+}
+
+function ignoreGlobalEslintDisalbe(code, filePath) {
+
+    // 非 .js 文件不做处理， 直接返回
+    if (!config.ignoreGlobalEslintDisalbe || !/\.js$/.test(filePath)) {
+        return code;
+    }
+
+    // @todo  将含有 全局 disable 注释的那一行也标记位错误
+
+    return code.replace(/(\/\*\s*)eslint-disable(\s\*\/)/g, '$1eslint-enable$2');
 }
 
 exports.check = check;

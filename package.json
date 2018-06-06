@@ -108,6 +108,10 @@
       {
         "command": "vscode-fecs-plugin.disable-check",
         "title": "vscode-fecs-plugin: Disable check"
+      },
+      {
+        "command": "vscode-fecs-plugin.add-disable-rule-comment",
+        "title": "vscode-fecs-plugin: Add Disable Rule Comments"
       }
     ],
     "keybindings": [

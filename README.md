@@ -16,11 +16,16 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 
 ### Fecs Check
 
-- Auto check
+- Default enable check
+  - can be disabled by configuring `vscode-fecs-plugin.disableCheck` to `true`
 - Support `.fecsrc`
 - Support disable/enable check, run command:
   - `vscode-fecs-plugin: Disable check`
   - `vscode-fecs-plugin: Enable check`
+- Quick add disable rule comments (*only support `eslint`*)
+  - `vscode-fecs-plugin: Add Disable Rule Comments`
+  > **this feature is dangerous, please use it with caution**
+- Support ignore `/* eslint-disalbe */` by configuring `vscode-fecs-plugin.ignoreGlobalEslintDisalbe` to `true`
 - [Demo](demo.md)
   ![javascript](images/js.png)
 
@@ -43,9 +48,10 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 
 This extension contributes the following settings:
 
-- `vscode-fecs-plugin.disableCheck`: Controls if disable check by default when vscode start/restart/reload
-- `vscode-fecs-plugin.en`: Controls if use English in output
-- `vscode-fecs-plugin.level`: Fecs check level. Value is 0 1 or 2
+- `vscode-fecs-plugin.disableCheck`: Controls if disable check by default when vscode start/restart/reload.
+- `vscode-fecs-plugin.ignoreGlobalEslintDisalbe`: Controls if ignore `/* eslint-disalbe */` in js file.
+- `vscode-fecs-plugin.en`: Controls if use English in output.
+- `vscode-fecs-plugin.level`: Fecs check level. Value is 0 1 or 2 .
 - `vscode-fecs-plugin.jsLikeExt`: Specified 'js like' files extension that can use fecs.
 - `vscode-fecs-plugin.cssLikeExt`: Specified 'css like' files extension that can use fecs.
 - `vscode-fecs-plugin.htmlLikeExt`: Specified 'html like' files extension that can use fecs.

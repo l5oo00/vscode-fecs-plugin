@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-05 20:41:21
+ * @last modified time: 2018-06-06 13:38:34
  */
 
 /* global  */
@@ -30,10 +30,6 @@ function registerFormatCommand() {
             return;
         }
 
-        if (!isSupportEditor(editor)) {
-            return;
-        }
-
         editorLib.wrap(editor).format();
     });
 }
@@ -50,6 +46,16 @@ function registerEnableCheckCommand() {
         disableCheck = false;
         checkAllVisibleTextEditor();
         window.showInformationMessage('Fecs Check: ON');
+    });
+}
+function registerAddDisableCommentCommand() {
+    return commands.registerCommand('vscode-fecs-plugin.add-disable-rule-comment', () => {
+        let editor = window.activeTextEditor;
+        if (!editor || !isSupportEditor(editor)) {
+            return;
+        }
+
+        editorLib.wrap(editor).addDisableComment();
     });
 }
 
@@ -154,6 +160,7 @@ function activate(context) {
     context.subscriptions.push(registerFormatCommand());
     context.subscriptions.push(registerDisableCheckCommand());
     context.subscriptions.push(registerEnableCheckCommand());
+    context.subscriptions.push(registerAddDisableCommentCommand());
 
     // 启动时检查一遍
     checkAllVisibleTextEditor();
