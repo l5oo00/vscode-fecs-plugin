@@ -29,6 +29,12 @@
           "type": "boolean",
           "description": "Controls if disable check by default when vscode start/restart/reload"
         },
+        "vscode-fecs-plugin.ignoreGlobalEslintDisalbe": {
+          "default": true,
+          "title": "Ignore `/* eslint-disalbe */` in js file",
+          "type": "boolean",
+          "description": "Controls if ignore `/* eslint-disalbe */` in js file"
+        },
         "vscode-fecs-plugin.en": {
           "default": false,
           "title": "Fecs use English in output",
