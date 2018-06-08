@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-06 13:38:34
+ * @last modified time: 2018-06-08 10:33:46
  */
 
 /* global  */
@@ -23,44 +23,77 @@ const {window, workspace, commands} = vscode;
 
 let disableCheck = config.disableCheck;
 
-function registerFormatCommand() {
-    return commands.registerCommand('vscode-fecs-plugin.format', () => {
-        let editor = window.activeTextEditor;
-        if (!editor || !isSupportEditor(editor)) {
-            return;
-        }
+/**
+ * 注册插件 command
+ *
+ * @param {ExtensionContext} context 扩展上下文
+ */
+function registerNewCommand(context) {
 
-        editorLib.wrap(editor).format();
-    });
-}
 
-function registerDisableCheckCommand() {
-    return commands.registerCommand('vscode-fecs-plugin.disable-check', () => {
-        disableCheck = true;
-        editorLib.dispose();
-        window.showInformationMessage('Fecs Check: OFF');
-    });
-}
-function registerEnableCheckCommand() {
-    return commands.registerCommand('vscode-fecs-plugin.enable-check', () => {
-        disableCheck = false;
-        checkAllVisibleTextEditor();
-        window.showInformationMessage('Fecs Check: ON');
-    });
-}
-function registerAddDisableCommentCommand() {
-    return commands.registerCommand('vscode-fecs-plugin.add-disable-rule-comment', () => {
-        let editor = window.activeTextEditor;
-        if (!editor || !isSupportEditor(editor)) {
-            return;
-        }
+    function registerFormatCommand() {
+        return commands.registerCommand('vscode-fecs-plugin.format', () => {
+            let editor = window.activeTextEditor;
+            if (!editor || !isSupportEditor(editor)) {
+                return;
+            }
 
-        editorLib.wrap(editor).addDisableComment();
-    });
+            editorLib.wrap(editor).format();
+        });
+    }
+
+    function registerDisableCheckCommand() {
+        return commands.registerCommand('vscode-fecs-plugin.disable-check', () => {
+            disableCheck = true;
+            editorLib.dispose();
+            window.showInformationMessage('Fecs Check: OFF');
+        });
+    }
+    function registerEnableCheckCommand() {
+        return commands.registerCommand('vscode-fecs-plugin.enable-check', () => {
+            disableCheck = false;
+            checkAllVisibleTextEditor();
+            window.showInformationMessage('Fecs Check: ON');
+        });
+    }
+
+    function registerAddDisableCommentCommand() {
+        return commands.registerCommand('vscode-fecs-plugin.add-disable-rule-comment', () => {
+            let editor = window.activeTextEditor;
+            if (!editor || !isSupportEditor(editor)) {
+                return;
+            }
+
+            editorLib.wrap(editor).addDisableComment();
+        });
+    }
+
+    function registerSearchRuleInBrowserCommand() {
+        return commands.registerCommand('vscode-fecs-plugin.search-rule-in-browser', () => {
+            let editor = window.activeTextEditor;
+            if (!editor || !isSupportEditor(editor)) {
+                return;
+            }
+
+            let url = editorLib.wrap(editor).getViewRuleUrl();
+            if (url) {
+                commands.executeCommand('vscode.open', vscode.Uri.parse(url));
+            }
+        });
+
+    }
+
+    context.subscriptions.push(registerFormatCommand());
+    context.subscriptions.push(registerDisableCheckCommand());
+    context.subscriptions.push(registerEnableCheckCommand());
+    context.subscriptions.push(registerAddDisableCommentCommand());
+    context.subscriptions.push(registerSearchRuleInBrowserCommand());
 }
 
 /**
  * 检查所有窗口及内容可见的文件， 一般数量和编辑器拆分数量一致
+ *
+ * @param {ExtensionContext} context 扩展上下文
  */
 function checkAllVisibleTextEditor() {
     window.visibleTextEditors.forEach(e => {
@@ -156,11 +189,7 @@ function activate(context) {
         editorLib.wrap(editor).renderErrors();
     });
 
-
-    context.subscriptions.push(registerFormatCommand());
-    context.subscriptions.push(registerDisableCheckCommand());
-    context.subscriptions.push(registerEnableCheckCommand());
-    context.subscriptions.push(registerAddDisableCommentCommand());
+    registerNewCommand(context);
 
     // 启动时检查一遍
     checkAllVisibleTextEditor();

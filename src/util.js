@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 18:24:6
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 19:26:32
+ * @last modified time: 2018-06-08 10:14:36
  */
 
 /* global  */
@@ -87,3 +87,16 @@ function isSupportEditor(editor) {
     return isSupportDocument(editor.document);
 }
 exports.isSupportEditor = isSupportEditor;
+
+
+function getSelectionPosition(selection) {
+
+    let start = selection.anchor;
+    let stop = selection.active;
+    if (selection.isReversed) {
+        start = selection.active;
+        stop = selection.anchor;
+    }
+    return {start, stop};
+}
+exports.getSelectionPosition = getSelectionPosition;

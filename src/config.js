@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:07:41
  * @last modified by: yanglei07
- * @last modified time: 2018-06-06 13:26:3
+ * @last modified time: 2018-06-08 10:39:23
  */
 
 /* global  */
@@ -29,7 +29,8 @@ let config = {
     warningColor: '#ddb700',
     typeMap: new Map(),
     excludePaths: configuration.get('excludePaths', []),
-    excludeFileNameSuffixes: configuration.get('excludeFileNameSuffixes', [])
+    excludeFileNameSuffixes: configuration.get('excludeFileNameSuffixes', []),
+    searchUrl: configuration.get('searchUrl', '')
 };
 
 ['js', 'css', 'html'].forEach(type => {

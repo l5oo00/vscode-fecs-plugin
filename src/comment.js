@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-06 13:42:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-06 13:48:52
+ * @last modified time: 2018-06-08 10:15:54
  */
 
 /* global  */
@@ -13,25 +13,18 @@
 /* eslint-enable fecs-camelcase */
 'use strict';
 const vscode = require('vscode');
+const util = require('./util.js');
+
 const Position = vscode.Position;
 
 exports.addDisableComment = editor => {
-    if (!editor.doc) {
-        return; // 好像不用这个判断
-    }
 
     let errorMap = editor.errorMap;
     if (errorMap.size === 0) {
         return;
     }
 
-    let selection = editor.vscEditor.selection;
-    let start = selection.anchor;
-    let stop = selection.active;
-    if (selection.isReversed) {
-        start = selection.active;
-        stop = selection.anchor;
-    }
+    let {start, stop} = util.getSelectionPosition(editor.vscEditor.selection);
 
     let startLine = editor.doc.vscDocument.lineAt(start);
     let stopLine = editor.doc.vscDocument.lineAt(stop);

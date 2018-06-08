@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-06 13:44:24
+ * @last modified time: 2018-06-08 10:40:57
  */
 
 /* global  */
@@ -18,7 +18,8 @@ const {createDiagnostic, showDiagnostics, clearDiagnostics} = require('./diagnos
 const {createDecoration, showDecoration} = require('./decoration.js');
 const addDisableComment = require('./comment.js').addDisableComment;
 const statusBar = require('./statusbar.js');
-const log = require('./util.js').log;
+const {log, getSelectionPosition} = require('./util.js');
+const config = require('./config.js');
 
 const {window, Position, Range} = vscode;
 
@@ -158,6 +159,30 @@ class Editor {
 
     addDisableComment() {
         addDisableComment(this);
+    }
+    getViewRuleUrl() {
+        let errors = this.getCurrentActiveErrors();
+        let err = errors[0];
+
+        if (!err) {
+            return;
+        }
+
+        return config.searchUrl.replace(/\$\{query\}/, encodeURIComponent(err.linterType + ' ' + err.rule));
+    }
+
+    getCurrentActiveErrors() {
+        let editor = this;
+        let errorMap = editor.errorMap;
+        if (errorMap.size === 0) {
+            return;
+        }
+
+        let start = getSelectionPosition(editor.vscEditor.selection).start;
+        let startLine = editor.doc.vscDocument.lineAt(start);
+        let lineIndex = startLine.lineNumber;
+        let errors = errorMap.get(lineIndex) || [];
+        return errors;
     }
 
     dispose() {

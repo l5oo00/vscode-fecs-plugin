@@ -93,6 +93,12 @@
           "title": "Uncheck the files with these suffixes",
           "type": "array",
           "description": "Uncheck the files with these suffixes."
+        },
+        "vscode-fecs-plugin.searchUrl": {
+          "default": "https://www.google.com/search?q=${query}",
+          "title": "Search engine url",
+          "type": "string",
+          "description": "Search engine url"
         }
       }
     },
@@ -112,6 +118,10 @@
       {
         "command": "vscode-fecs-plugin.add-disable-rule-comment",
         "title": "vscode-fecs-plugin: Add Disable Rule Comments"
+      },
+      {
+        "command": "vscode-fecs-plugin.search-rule-in-browser",
+        "title": "vscode-fecs-plugin: Search Rule In Browser"
       }
     ],
     "keybindings": [

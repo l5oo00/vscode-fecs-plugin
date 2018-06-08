@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 19:35:24
  * @last modified by: yanglei07
- * @last modified time: 2018-06-06 13:08:40
+ * @last modified time: 2018-06-08 10:47:23
  */
 
 /* global  */
@@ -37,6 +37,8 @@ function showErrorMessage({vscEditor, errorMap}) {
     if (!msgItem) {
         msgItem = window.createStatusBarItem(1);
         ruleItem = window.createStatusBarItem(1);
+
+        msgItem.command = ruleItem.command = 'vscode-fecs-plugin.search-rule-in-browser';
     }
 
     let showErr = errList[0] || {msg: '', rule: '', severity: 0};
