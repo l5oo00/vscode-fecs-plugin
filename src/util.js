@@ -4,13 +4,10 @@
  * @description ..
  * @create data: 2018-05-31 18:24:6
  * @last modified by: yanglei07
- * @last modified time: 2018-06-08 10:14:36
+ * @last modified time: 2018-06-09 17:40:55
  */
 
 /* global  */
-
-/* eslint-disable fecs-camelcase */
-/* eslint-enable fecs-camelcase */
 'use strict';
 const nodePathLib = require('path');
 

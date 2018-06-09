@@ -4,13 +4,10 @@
  * @description ..
  * @create data: 2018-05-31 15:49:22
  * @last modified by: yanglei07
- * @last modified time: 2018-06-06 13:37:36
+ * @last modified time: 2018-06-09 17:40:30
  */
 
 /* global  */
-
-/* eslint-disable fecs-camelcase */
-/* eslint-enable fecs-camelcase */
 'use strict';
 const Readable = require('stream').Readable;
 const nodePathLib = require('path');
@@ -83,9 +80,9 @@ function createCodeStream(code = '', filePath = '') {
     return stream;
 }
 
-function check(code = '', filePath = '') {
+function check(oriCode = '', filePath = '') {
 
-    code = ignoreGlobalEslintDisalbe(code, filePath);
+    let {code, disableErrors} = ignoreGlobalEslintDisalbe(oriCode, filePath);
 
     let fileStream = createCodeStream(code, filePath);
     let isES6 = isUseES6(code, filePath);
@@ -101,6 +98,7 @@ function check(code = '', filePath = '') {
         }, (success, json) => {
 
             let errors = (json[0] || {}).errors || [];
+            errors = errors.concat(disableErrors);
             errors.forEach(err => err.linterType = linterType);
             r(errors);
         });
@@ -109,9 +107,9 @@ function check(code = '', filePath = '') {
     return p;
 }
 
-function format(code = '', filePath = '') {
+function format(oriCode = '', filePath = '') {
 
-    code = ignoreGlobalEslintDisalbe(code, filePath);
+    let code = ignoreGlobalEslintDisalbe(oriCode, filePath).code;
 
     let fileStream = createCodeStream(code, filePath);
     let isES6 = isUseES6(code, filePath);
@@ -183,14 +181,33 @@ function isUseES6(code, filePath) {
 
 function ignoreGlobalEslintDisalbe(code, filePath) {
 
+    let disableErrors = [];
+
     // 非 .js 文件不做处理， 直接返回
     if (!config.ignoreGlobalEslintDisalbe || !/\.js$/.test(filePath)) {
-        return code;
+        return {code, disableErrors};
     }
 
-    // @todo  将含有 全局 disable 注释的那一行也标记位错误
-
-    return code.replace(/(\/\*\s*)eslint-disable(\s\*\/)/g, '$1eslint-enable$2');
+    // 将含有 全局 disable 注释的那一行也标记位错误
+    let lastLineOffset = 0;
+    let lastLineIndex = 1;
+    code = code.replace(/(\/\*\s*)eslint-disable(\s\*\/)|\n/g, (m, prefix, suffix, offset) => {
+        if (m === '\n') {
+            lastLineIndex++;
+            lastLineOffset = offset;
+            return m;
+        }
+        let err = {
+            message: '大神， 求不要这么暴力的 eslint-disable , 可怜可怜后面的接盘侠吧~',
+            rule: 'no-eslint-global-disable',
+            line: lastLineIndex,
+            column: offset - lastLineOffset,
+            severity: 2
+        };
+        disableErrors.push(err);
+        return prefix + 'eslint-enable' + suffix;
+    });
+    return {code, disableErrors};
 }
 
 exports.check = check;

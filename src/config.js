@@ -4,13 +4,10 @@
  * @description ..
  * @create data: 2018-05-31 17:07:41
  * @last modified by: yanglei07
- * @last modified time: 2018-06-08 10:39:23
+ * @last modified time: 2018-06-09 17:38:52
  */
 
 /* global  */
-
-/* eslint-disable fecs-camelcase */
-/* eslint-enable fecs-camelcase */
 'use strict';
 
 const vscode = require('vscode');
@@ -30,7 +27,8 @@ let config = {
     typeMap: new Map(),
     excludePaths: configuration.get('excludePaths', []),
     excludeFileNameSuffixes: configuration.get('excludeFileNameSuffixes', []),
-    searchUrl: configuration.get('searchUrl', '')
+    searchUrl: configuration.get('searchUrl', ''),
+    autoFormatOnSave: configuration.get('autoFormatOnSave', false)
 };
 
 ['js', 'css', 'html'].forEach(type => {

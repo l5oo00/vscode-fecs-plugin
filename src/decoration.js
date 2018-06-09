@@ -4,13 +4,10 @@
  * @description ..
  * @create data: 2018-05-31 19:13:25
  * @last modified by: yanglei07
- * @last modified time: 2018-06-03 15:26:18
+ * @last modified time: 2018-06-09 17:39:16
  */
 
 /* global  */
-
-/* eslint-disable fecs-camelcase */
-/* eslint-enable fecs-camelcase */
 'use strict';
 
 const vscode = require('vscode');

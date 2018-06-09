@@ -12,20 +12,23 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 ### Fecs Format
 
 - Run command: `vscode-fecs-plugin: Format`
-- Shortcuts: `cmd+shift+r`
+  - shortcuts: `cmd+shift+r`
+- Support auto format on save.
+  - can be enable by configuring `vscode-fecs-plugin.autoFormatOnSave` to `true`
 
 ### Fecs Check
 
 - Default enable check
   - can be disabled by configuring `vscode-fecs-plugin.disableCheck` to `true`
-- Support [`.fecsrc`](https://github.com/ecomfe/fecs/wiki/Configuration)
+- Support [`.fecsrc`](./fecsrc/README.md)
 - Support disable/enable check, run command:
   - `vscode-fecs-plugin: Disable check`
   - `vscode-fecs-plugin: Enable check`
 - Support add inline disable rule comments quickly (*only support `eslint`*)
   - `vscode-fecs-plugin: Add Disable Rule Comments`
   > **this feature is dangerous, please use it with caution**
-- Support ignore `/* eslint-disalbe */` by configuring `vscode-fecs-plugin.ignoreGlobalEslintDisalbe` to `true`
+- Support ignore `/* eslint-disalbe */`
+  - can be disabled by configuring `vscode-fecs-plugin.ignoreGlobalEslintDisalbe` to `false`
 - Support search rule in borwser
   - `vscode-fecs-plugin.search-rule-in-browser`
   - click the error message in statusbar
@@ -61,6 +64,7 @@ This extension contributes the following settings:
 - `vscode-fecs-plugin.excludePaths`: Uncheck the files in these directory.
 - `vscode-fecs-plugin.excludeFileNameSuffixes`: Uncheck the files with these suffixes.
 - `vscode-fecs-plugin.searchUrl`: Search engine url, replace query by `${query}`, used to search for error rule.
+- `vscode-fecs-plugin.autoFormatOnSave`: Controls if auto format on save a document.
 
 ### For more information
 

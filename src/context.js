@@ -4,13 +4,10 @@
  * @description 插件 context
  * @create data: 2018-05-31 19:28:53
  * @last modified by: yanglei07
- * @last modified time: 2018-05-31 19:30:28
+ * @last modified time: 2018-06-09 17:39:19
  */
 
 /* global  */
-
-/* eslint-disable fecs-camelcase */
-/* eslint-enable fecs-camelcase */
 'use strict';
 
 

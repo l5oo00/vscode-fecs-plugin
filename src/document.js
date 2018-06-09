@@ -4,13 +4,10 @@
  * @description ..
  * @create data: 2018-06-02 16:29:2
  * @last modified by: yanglei07
- * @last modified time: 2018-06-06 09:58:26
+ * @last modified time: 2018-06-09 17:39:32
  */
 
 /* global  */
-
-/* eslint-disable fecs-camelcase */
-/* eslint-enable fecs-camelcase */
 'use strict';
 const nodePathLib = require('path');
 const {getFileExtName, isSupportFilePath} = require('./util.js');
@@ -216,6 +213,12 @@ class Document {
     }
 }
 
+/**
+ * 对 TextDocument 进行封装
+ *
+ * @param {TextDocument} vscDocument vscode 的  TextDocument 实例
+ * @return {Document} 封装的 Document 实例
+ */
 exports.wrap = vscDocument => {
     let document = documentMap.get(vscDocument.fileName);
 

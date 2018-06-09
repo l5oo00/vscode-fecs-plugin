@@ -4,13 +4,10 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-08 10:33:46
+ * @last modified time: 2018-06-09 17:40:40
  */
 
 /* global  */
-
-/* eslint-disable fecs-camelcase */
-/* eslint-enable fecs-camelcase */
 'use strict';
 const vscode = require('vscode');
 
@@ -110,6 +107,23 @@ function activate(context) {
     log(' is active!');
 
     ctxLib.set(context);
+
+    // 保存时自动 format
+    config.autoFormatOnSave && workspace.onWillSaveTextDocument(event => {
+        log('workspace.onWillSaveTextDocument', event.document.fileName);
+
+        if (!isSupportDocument(event.document) || event.reason !== vscode.TextDocumentSaveReason.Manual
+            || !window.activeTextEditor) {
+            return;
+        }
+
+        let editor = editorLib.wrap(window.activeTextEditor);
+        if (editor.errorMap.size === 0) {
+            return;
+        }
+
+        event.waitUntil(editor.format());
+    });
 
     // 该文档的所有 tab 都被关闭后触发
     workspace.onDidCloseTextDocument(document => {

@@ -4,13 +4,11 @@
  * @description ..
  * @create data: 2018-06-06 13:42:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-08 10:15:54
+ * @last modified time: 2018-06-09 17:38:40
  */
 
 /* global  */
 
-/* eslint-disable fecs-camelcase */
-/* eslint-enable fecs-camelcase */
 'use strict';
 const vscode = require('vscode');
 const util = require('./util.js');

@@ -1,0 +1,17 @@
+{
+    "root": true,
+    "eslint": {
+        "parser": "espree",
+        "env": {
+            "browser": true,
+            "es6": false
+        },
+        "parserOptions": {
+            "sourceType": "script",
+            "ecmaVersion": 5
+        },
+        "extends": "eslint:recommended",
+        "rules": {
+        }
+    }
+}

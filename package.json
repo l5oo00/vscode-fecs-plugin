@@ -35,6 +35,12 @@
           "type": "boolean",
           "description": "Controls if ignore `/* eslint-disalbe */` in js file"
         },
+        "vscode-fecs-plugin.autoFormatOnSave": {
+          "default": false,
+          "title": "Auto format on save",
+          "type": "boolean",
+          "description": "Controls if auto format on save a document"
+        },
         "vscode-fecs-plugin.en": {
           "default": false,
           "title": "Fecs use English in output",

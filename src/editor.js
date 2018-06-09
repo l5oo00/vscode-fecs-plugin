@@ -4,13 +4,10 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-08 10:40:57
+ * @last modified time: 2018-06-09 17:51:24
  */
 
 /* global  */
-
-/* eslint-disable fecs-camelcase */
-/* eslint-enable fecs-camelcase */
 'use strict';
 const vscode = require('vscode');
 const documentLib = require('./document.js');
@@ -32,9 +29,10 @@ class Editor {
         this.fileName = vscEditor.document ? vscEditor.document.fileName : '';
 
         this.checkDelayTimer = null;
+        this.checkDelayCancel = null;
         this.needCheck = true;
-        this.isCheckRunning = false;
-        this.isFormatRunning = false;
+        this.checkPromise = null;
+        this.formatPromise = null;
 
         this.clear();
 
@@ -61,65 +59,88 @@ class Editor {
         if (this.checkDelayTimer) {
             clearTimeout(this.checkDelayTimer);
             this.checkDelayTimer = null;
+            this.checkDelayCancel();
+            this.checkDelayCancel = null;
         }
     }
 
-    check(needDelay) {
-        if (this.isCheckRunning) {
-            return;
+    /**
+     * 对此 TextEditor 运行代码检查
+     *
+     * @param {boolean} needDelay 是否需要延迟执行， 一般只在编辑操作时会设置为 true
+     * @return {Promise} checkPromise
+     */
+    check(needDelay = false) {
+        if (this.checkPromise) {
+            return this.checkPromise;
         }
 
         if (!this.needCheck) {
             // 文件语言没有改变则直接 render
             if (!this.doc.updateCheckFilePath()) {
                 this.renderErrors();
-                return;
+                return Promise.resolve();
             }
         }
 
         this.clearCheckDelayTimer();
 
         if (needDelay === true) {
-            this.checkDelayTimer = setTimeout(() => {
-                this.check();
-            }, 1000);
-            return;
+            let p = new Promise((r, j) => {
+                this.checkDelayCancel = j;
+                this.checkDelayTimer = setTimeout(() => {
+                    this.checkDelayTimer = null;
+                    r();
+                    this.checkDelayCancel = null;
+                }, 1000);
+            });
+            return p.then(() => {
+                return this.check();
+            }).catch(() => {});
         }
 
-        this.isCheckRunning = true;
         this.needCheck = false;
-        this.doc.check().then(errors => {
+        this.checkPromise = this.doc.check().then(errors => {
             log('checkDone! Error count: ', errors.length);
             this.prepareErrors(errors);
             this.renderErrors();
-            this.isCheckRunning = false;
         }).catch(err => {
             log(err);
-            this.isCheckRunning = false;
             this.needCheck = true;
         });
+        this.checkPromise.then(() => {
+            this.checkPromise = null;
+        });
+        return this.checkPromise;
     }
+
+    /**
+     * 对此 TextEditor 进行代码规范修复
+     *
+     * @return {Promise} formatPromise
+     */
     format() {
-        if (this.isFormatRunning) {
-            return;
+        if (this.formatPromise) {
+            return this.formatPromise;
         }
 
-        this.isFormatRunning = true;
-
-        this.doc.format().then(code => {
+        this.formatPromise = this.doc.format().then(code => {
             let startPos = new Position(0, 0);
             let endPos = new Position(this.doc.vscDocument.lineCount, 0);
             let range = new Range(startPos, endPos);
 
-            this.vscEditor.edit(editBuilder => {
+            return this.vscEditor.edit(editBuilder => {
                 editBuilder.replace(range, code);
-                this.isFormatRunning = false;
                 window.showInformationMessage('Format Success!');
             });
-        }).catch(err => {
-            this.isFormatRunning = false;
+        });
+
+        return this.formatPromise.catch(() => {}).then(() => {
+            this.formatPromise = null;
         });
     }
+
+
     prepareErrors(errors) {
 
         this.clear();
@@ -160,6 +181,7 @@ class Editor {
     addDisableComment() {
         addDisableComment(this);
     }
+
     getViewRuleUrl() {
         let errors = this.getCurrentActiveErrors();
         let err = errors[0];
@@ -193,6 +215,12 @@ class Editor {
     }
 }
 
+/**
+ * 对 TextEditor 进行封装
+ *
+ * @param {TextEditor} vscEditor vscode 的  TextEditor 实例
+ * @return {Editor} 封装的 Editor 实例
+ */
 exports.wrap = vscEditor => {
 
     let editor = editorMap.get(vscEditor.id);
