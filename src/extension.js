@@ -40,6 +40,7 @@ const maxUnvisibleEditorDataCount = 20;
 
 let config = {
     en: false,
+    isAutoFix: false,
     level: 0,
     errorColor: '#f00',
     warningColor: '#ddb700',
@@ -504,6 +505,7 @@ function activate(context) {
     let configuration = workspace.getConfiguration('vscode-fecs-plugin');
     config.en = configuration.get('en', false);
     config.level = configuration.get('level', 0);
+    config.isAutoFix = configuration.get('autoSaveFix', false);
     setTypeMap(configuration);
     config.excludePaths = configuration.get('excludePaths', []);
     config.excludeFileNameSuffixes = configuration.get('excludeFileNameSuffixes', []);
@@ -544,6 +546,13 @@ function activate(context) {
             runFecs(e, true);
         });
         showErrorMessageInStatusBar(editor);
+    });
+
+    // 保存文档前发出（saving...)
+    workspace.onWillSaveTextDocument(function (event) {
+        if (config.isAutoFix) {
+            runFecsFormat(vscode.window.activeTextEditor);
+        }
     });
 
     // 切换文件 tab 后触发

@@ -87,6 +87,12 @@
           "title": "Uncheck the files with these suffixes",
           "type": "array",
           "description": "Uncheck the files with these suffixes."
+        },
+        "vscode-fecs-plugin.autoSaveFix": {
+          "default": false,
+          "title": "Turns auto fix on save on or off.",
+          "type": "boolean",
+          "description": "Turns auto fix on save on or off."
         }
       }
     },
