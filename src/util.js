@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 18:24:6
  * @last modified by: yanglei07
- * @last modified time: 2018-06-09 17:40:55
+ * @last modified time: 2018-06-10 16:44:53
  */
 
 /* global  */
@@ -33,7 +33,7 @@ const languageMap = {
     san: 'san'
 };
 function getFileExtName(document) {
-    let fileName = document.fileName || '';
+    const fileName = document.fileName || '';
     let ext = nodePathLib.extname(fileName).substr(1);
 
     // 没有扩展名的文件， 根据语言来识别
@@ -73,8 +73,8 @@ function isSupportFilePath(filePath, ext = '') {
 exports.isSupportFilePath = isSupportFilePath;
 
 function isSupportDocument(document) {
-    let fileName = document.fileName || '';
-    let ext = getFileExtName(document);
+    const fileName = document.fileName || '';
+    const ext = getFileExtName(document);
 
     return isSupportFilePath(fileName, ext);
 }

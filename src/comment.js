@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-06 13:42:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-09 17:38:40
+ * @last modified time: 2018-06-10 16:24:55
  */
 
 /* global  */
@@ -17,30 +17,30 @@ const Position = vscode.Position;
 
 exports.addDisableComment = editor => {
 
-    let errorMap = editor.errorMap;
+    const errorMap = editor.errorMap;
     if (errorMap.size === 0) {
         return;
     }
 
-    let {start, stop} = util.getSelectionPosition(editor.vscEditor.selection);
+    const {start, stop} = util.getSelectionPosition(editor.vscEditor.selection);
 
-    let startLine = editor.doc.vscDocument.lineAt(start);
-    let stopLine = editor.doc.vscDocument.lineAt(stop);
+    const startLine = editor.doc.vscDocument.lineAt(start);
+    const stopLine = editor.doc.vscDocument.lineAt(stop);
 
     // 梳理代码块， 只包含有错误的代码块
-    let blocks = [];
+    const blocks = [];
     let block = null;
     let lineCount = 0;
     let allRules = new Set();
-    let vscDocument = editor.doc.vscDocument;
+    const vscDocument = editor.doc.vscDocument;
     for (let i = startLine.lineNumber; i <= stopLine.lineNumber; i++) {
-        let errors = errorMap.get(i);
+        const errors = errorMap.get(i);
         if (!errors || errors.length === 0) {
             continue;
         }
 
-        let rules = new Set();
-        let isEslint = errors.every(err => {
+        const rules = new Set();
+        const isEslint = errors.every(err => {
             rules.add(err.rule);
             return err.linterType === 'eslint';
         });
@@ -49,7 +49,7 @@ exports.addDisableComment = editor => {
         }
 
         if (!block || block.EndLineIndex + 1 < i) {
-            let beginLine = vscDocument.lineAt(i);
+            const beginLine = vscDocument.lineAt(i);
             block = {
                 beginLineIndex: i,
                 EndLineIndex: i,
@@ -65,7 +65,7 @@ exports.addDisableComment = editor => {
         block.EndLineIndex = i;
         allRules = new Set([...allRules, ...rules]);
 
-        let endLine = vscDocument.lineAt(i);
+        const endLine = vscDocument.lineAt(i);
         block.endLineWhitespacePrefix = endLine.text.substr(0, endLine.firstNonWhitespaceCharacterIndex);
 
         lineCount++;
@@ -85,16 +85,16 @@ exports.addDisableComment = editor => {
     // 为梳理出的各个代码库添加规则禁用注释
     editor.vscEditor.edit(editBuilder => {
         for (let i = 0; i < blocks.length; i++) {
-            let block = blocks[i];
-            let rules = [...block.rules].join(', ');
-            let disable = block.beginLineWhitespacePrefix + '/* eslint-disable ' + rules + ' */\n';
-            let enable = block.endLineWhitespacePrefix + '/* eslint-enable ' + rules + ' */\n';
+            const block = blocks[i];
+            const rules = [...block.rules].join(', ');
+            const disable = block.beginLineWhitespacePrefix + '/* eslint-disable ' + rules + ' */\n';
+            const enable = block.endLineWhitespacePrefix + '/* eslint-enable ' + rules + ' */\n';
 
-            let startLineIndex = block.beginLineIndex;
-            let stopLineIndex = block.EndLineIndex;
-            let start = new Position(startLineIndex, 0);
+            const startLineIndex = block.beginLineIndex;
+            const stopLineIndex = block.EndLineIndex;
+            const start = new Position(startLineIndex, 0);
             // 从下一行的0开始
-            let stop = new Position(stopLineIndex + 1, 0);
+            const stop = new Position(stopLineIndex + 1, 0);
 
             // 此时的操作不会立即影响当前文档， 循环后续的 insert 不用考虑前面添加的行数
             editBuilder.insert(start, disable);

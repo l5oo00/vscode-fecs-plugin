@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 19:13:25
  * @last modified by: yanglei07
- * @last modified time: 2018-06-09 17:39:16
+ * @last modified time: 2018-06-10 16:27:5
  */
 
 /* global  */
@@ -22,7 +22,7 @@ let errorPointImagePath = '';
 
 function initPath() {
     if (!warningPointImagePath) {
-        let ctx = pluginContextFactory.get();
+        const ctx = pluginContextFactory.get();
         warningPointImagePath = ctx.asAbsolutePath('images/warning.svg');
         errorPointImagePath = ctx.asAbsolutePath('images/error.svg');
     }
@@ -47,9 +47,9 @@ function createDecorationType(type = 'warning') {
 }
 
 function createDecoration(lineIndex) {
-    let startPos = new Position(lineIndex, 0);
-    let endPos = new Position(lineIndex, 0);
-    let decoration = {
+    const startPos = new Position(lineIndex, 0);
+    const endPos = new Position(lineIndex, 0);
+    const decoration = {
         range: new Range(startPos, endPos)
     };
     return decoration;
@@ -60,7 +60,7 @@ exports.createDecoration = createDecoration;
 function decorateEditor(editor, list, type, decorationTypeList) {
 
     if (list.length) {
-        let dt = createDecorationType(type);
+        const dt = createDecorationType(type);
         decorationTypeList.push(dt);
         editor.setDecorations(dt, list);
     }

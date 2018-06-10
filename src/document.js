@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-02 16:29:2
  * @last modified by: yanglei07
- * @last modified time: 2018-06-09 17:39:32
+ * @last modified time: 2018-06-10 16:30:38
  */
 
 /* global  */
@@ -13,7 +13,7 @@ const nodePathLib = require('path');
 const {getFileExtName, isSupportFilePath} = require('./util.js');
 const fecs = require('./fecs.js');
 
-let documentMap = new Map();
+const documentMap = new Map();
 
 /**
  * documet 辅助类， 主要负责调用 fecs 来做代码检查和格式化
@@ -33,10 +33,10 @@ class Document {
 
     // 没有扩展名的文件（）可能会更改语言，这里需要修正
     updateCheckFilePath() {
-        let old = this.checkFilePath;
+        const old = this.checkFilePath;
 
-        let ext = getFileExtName(this.vscDocument);
-        let extWithPoint = nodePathLib.extname(this.fileName);
+        const ext = getFileExtName(this.vscDocument);
+        const extWithPoint = nodePathLib.extname(this.fileName);
         if (!extWithPoint) {
             this.checkFilePath += '.' + ext;
         }
@@ -91,9 +91,9 @@ class Document {
     }
 
     checkVueOrSan(code, filePath) {
-        let blocks = this.splitVueOrSanCode(code, filePath, true);
+        const blocks = this.splitVueOrSanCode(code, filePath, true);
 
-        let task = blocks.map(
+        const task = blocks.map(
             block => fecs.check(block.content, block.filePath)
                 .then(errors => {
                     errors.forEach(err => {
@@ -113,9 +113,9 @@ class Document {
     }
 
     formatVueOrSan(code, filePath) {
-        let blocks = this.splitVueOrSanCode(code, filePath);
+        const blocks = this.splitVueOrSanCode(code, filePath);
 
-        let task = blocks.map(
+        const task = blocks.map(
             block => fecs.format(block.content, block.filePath)
                 .then(formatContent => {
                     block.formatContent = formatContent;
@@ -125,7 +125,7 @@ class Document {
 
         return Promise.all(task).then(blockList => {
             let index = 0;
-            let list = [];
+            const list = [];
             blockList.forEach(block => {
                 if (index !== block.codeBegin) {
                     list.push(code.substr(index, block.codeBegin - index));
@@ -139,20 +139,20 @@ class Document {
     }
 
     splitVueOrSanCode(code, filePath, needWrapCode = false) {
-        let vscDocument = this.vscDocument;
+        const vscDocument = this.vscDocument;
 
-        let templateReg = /(<template(.*)>)([\s\S]+)(<\/template>)/g;
-        let scriptReg = /(<script(.*)>)([\s\S]+)(<\/script>)/g;
-        let styleReg = /(<style(.*)>)([\s\S]+)(<\/style>)/g;
+        const templateReg = /(<template(.*)>)([\s\S]+)(<\/template>)/g;
+        const scriptReg = /(<script(.*)>)([\s\S]+)(<\/script>)/g;
+        const styleReg = /(<style(.*)>)([\s\S]+)(<\/style>)/g;
 
-        let blocks = [];
-        let index = 0;
+        const blocks = [];
+        const index = 0;
 
         // 暂时只对 js 进行 wrap
         function wrapCode(block) {
-            let {content, lang} = block;
+            const {content, lang} = block;
             if (lang === 'js') {
-                let wrap = '/**\n * @file: x.js\n * @author: x\n*/';
+                const wrap = '/**\n * @file: x.js\n * @author: x\n*/';
                 block.content = wrap + '\n' + content + '\n';
                 block.wrapLineCount = wrap.split('\n').length;
             }
@@ -160,24 +160,24 @@ class Document {
 
         // 根据正则索引获取行号， 行号从 0 开始
         function getLineIndexByOffset(offset) {
-            let position = vscDocument.positionAt(offset);
-            let line = vscDocument.lineAt(position);
+            const position = vscDocument.positionAt(offset);
+            const line = vscDocument.lineAt(position);
             return line.lineNumber;
         }
         function exec(reg, defaultLang) {
             let m = reg.exec(code);
             while (m) {
-                let content = m[3];
-                let codeBegin = m.index + m[1].length;
-                let codeEnd = codeBegin + content.length;
+                const content = m[3];
+                const codeBegin = m.index + m[1].length;
+                const codeEnd = codeBegin + content.length;
                 let lang = /\slang=['"](.*)['"]/.exec(m[2]) || [];
                 lang = lang[1] || defaultLang;
 
-                let mockFilePath = filePath + '-' + index + '.' + lang;
+                const mockFilePath = filePath + '-' + index + '.' + lang;
 
                 if (isSupportFilePath(mockFilePath)) {
 
-                    let block = {
+                    const block = {
                         filePath: mockFilePath,
                         codeBegin,
                         codeEnd,
@@ -231,8 +231,8 @@ exports.wrap = vscDocument => {
 
 exports.dispose = () => {
 
-    let unusedList = [];
-    for (let document of documentMap.values()) {
+    const unusedList = [];
+    for (const document of documentMap.values()) {
         if (document.vscDocument.isClosed) {
             unusedList.push(document);
         }

@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-09 17:40:40
+ * @last modified time: 2018-06-10 16:15:14
  */
 
 /* global  */
@@ -20,6 +20,23 @@ const {window, workspace, commands} = vscode;
 
 let disableCheck = config.disableCheck;
 
+
+/**
+ * 检查所有窗口及内容可见的文件， 一般数量和编辑器拆分数量一致
+ *
+ * @param {ExtensionContext} context 扩展上下文
+ */
+function checkAllVisibleTextEditor() {
+    window.visibleTextEditors.forEach(e => {
+        if (!isSupportEditor(e)) {
+            return;
+        }
+
+        editorLib.wrap(e).check();
+    });
+}
+
+
 /**
  * 注册插件 command
  *
@@ -30,7 +47,7 @@ function registerNewCommand(context) {
 
     function registerFormatCommand() {
         return commands.registerCommand('vscode-fecs-plugin.format', () => {
-            let editor = window.activeTextEditor;
+            const editor = window.activeTextEditor;
             if (!editor || !isSupportEditor(editor)) {
                 return;
             }
@@ -56,7 +73,7 @@ function registerNewCommand(context) {
 
     function registerAddDisableCommentCommand() {
         return commands.registerCommand('vscode-fecs-plugin.add-disable-rule-comment', () => {
-            let editor = window.activeTextEditor;
+            const editor = window.activeTextEditor;
             if (!editor || !isSupportEditor(editor)) {
                 return;
             }
@@ -67,12 +84,12 @@ function registerNewCommand(context) {
 
     function registerSearchRuleInBrowserCommand() {
         return commands.registerCommand('vscode-fecs-plugin.search-rule-in-browser', () => {
-            let editor = window.activeTextEditor;
+            const editor = window.activeTextEditor;
             if (!editor || !isSupportEditor(editor)) {
                 return;
             }
 
-            let url = editorLib.wrap(editor).getViewRuleUrl();
+            const url = editorLib.wrap(editor).getViewRuleUrl();
             if (url) {
                 commands.executeCommand('vscode.open', vscode.Uri.parse(url));
             }
@@ -85,21 +102,6 @@ function registerNewCommand(context) {
     context.subscriptions.push(registerEnableCheckCommand());
     context.subscriptions.push(registerAddDisableCommentCommand());
     context.subscriptions.push(registerSearchRuleInBrowserCommand());
-}
-
-/**
- * 检查所有窗口及内容可见的文件， 一般数量和编辑器拆分数量一致
- *
- * @param {ExtensionContext} context 扩展上下文
- */
-function checkAllVisibleTextEditor() {
-    window.visibleTextEditors.forEach(e => {
-        if (!isSupportEditor(e)) {
-            return;
-        }
-
-        editorLib.wrap(e).check();
-    });
 }
 
 function activate(context) {
@@ -117,7 +119,7 @@ function activate(context) {
             return;
         }
 
-        let editor = editorLib.wrap(window.activeTextEditor);
+        const editor = editorLib.wrap(window.activeTextEditor);
         if (editor.errorMap.size === 0) {
             return;
         }
@@ -154,7 +156,7 @@ function activate(context) {
             return;
         }
 
-        let document = event.document;
+        const document = event.document;
 
         if (!isSupportDocument(document)) {
             return;
@@ -163,7 +165,7 @@ function activate(context) {
         window.visibleTextEditors.filter(e =>
             e.document && e.document.fileName === document.fileName
         ).forEach(e => {
-            let editor = editorLib.wrap(e);
+            const editor = editorLib.wrap(e);
             editor.needCheck = true;
             editor.check(true);
         });
@@ -195,7 +197,7 @@ function activate(context) {
             return;
         }
 
-        let editor = event.textEditor;
+        const editor = event.textEditor;
         if (!isSupportEditor(editor)) {
             return;
         }
@@ -211,4 +213,6 @@ function activate(context) {
 exports.activate = activate;
 
 // this method is called when your extension is deactivated
+/* eslint-disable no-empty-function */
 exports.deactivate = () => {};
+/* eslint-enable no-empty-function */

@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:07:41
  * @last modified by: yanglei07
- * @last modified time: 2018-06-09 17:38:52
+ * @last modified time: 2018-06-10 16:25:16
  */
 
 /* global  */
@@ -14,10 +14,10 @@ const vscode = require('vscode');
 
 const workspace = vscode.workspace;
 
-let configuration = workspace.getConfiguration('vscode-fecs-plugin');
+const configuration = workspace.getConfiguration('vscode-fecs-plugin');
 
 
-let config = {
+const config = {
     disableCheck: configuration.get('disableCheck', false),
     ignoreGlobalEslintDisalbe: configuration.get('ignoreGlobalEslintDisalbe', true),
     en: configuration.get('en', false),

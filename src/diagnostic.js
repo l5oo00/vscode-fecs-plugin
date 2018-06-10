@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 19:20:47
  * @last modified by: yanglei07
- * @last modified time: 2018-06-09 17:39:13
+ * @last modified time: 2018-06-10 16:29:1
  */
 
 /* global  */
@@ -14,18 +14,18 @@ const vscode = require('vscode');
 
 const {languages, Diagnostic, Position, Range} = vscode;
 
-let diagnosticCollection = languages.createDiagnosticCollection('fecs');
+const diagnosticCollection = languages.createDiagnosticCollection('fecs');
 
 function createDiagnostic(data) {
 
-    let lineIndex = data.line - 1;
-    let cloumnIndex = data.column - 1;
-    let startPos = new Position(lineIndex, cloumnIndex);
-    let endPos = new Position(lineIndex, cloumnIndex);
-    let range = new Range(startPos, endPos);
+    const lineIndex = data.line - 1;
+    const cloumnIndex = data.column - 1;
+    const startPos = new Position(lineIndex, cloumnIndex);
+    const endPos = new Position(lineIndex, cloumnIndex);
+    const range = new Range(startPos, endPos);
 
-    let message = data.msg;
-    let severity = data.severity === 2 ? 0 : 1;
+    const message = data.msg;
+    const severity = data.severity === 2 ? 0 : 1;
 
     return new Diagnostic(range, message, severity);
 }
@@ -38,8 +38,8 @@ exports.createDiagnostic = createDiagnostic;
  */
 function showDiagnostics(editor) {
 
-    let uri = editor.doc.vscDocument.uri;
-    let diagnostics = editor.diagnostics;
+    const uri = editor.doc.vscDocument.uri;
+    const diagnostics = editor.diagnostics;
 
     diagnosticCollection.clear();
 

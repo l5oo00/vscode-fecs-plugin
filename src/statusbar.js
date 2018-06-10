@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 19:35:24
  * @last modified by: yanglei07
- * @last modified time: 2018-06-09 17:40:47
+ * @last modified time: 2018-06-10 16:44:21
  */
 
 /* global  */
@@ -22,8 +22,8 @@ let ruleItem = null;
 function showErrorMessage({vscEditor, errorMap}) {
 
 
-    let selection = vscEditor.selection;
-    let line = selection.start.line; // 只显示选区第一行的错误信息
+    const selection = vscEditor.selection;
+    const line = selection.start.line; // 只显示选区第一行的错误信息
 
     let errList = [];
 
@@ -35,10 +35,11 @@ function showErrorMessage({vscEditor, errorMap}) {
         msgItem = window.createStatusBarItem(1);
         ruleItem = window.createStatusBarItem(1);
 
-        msgItem.command = ruleItem.command = 'vscode-fecs-plugin.search-rule-in-browser';
+        msgItem.command = 'vscode-fecs-plugin.search-rule-in-browser';
+        ruleItem.command = 'vscode-fecs-plugin.search-rule-in-browser';
     }
 
-    let showErr = errList[0] || {msg: '', rule: '', severity: 0};
+    const showErr = errList[0] || {msg: '', rule: '', severity: 0};
 
     msgItem.text = showErr.msg;
     msgItem.color = showErr.severity === 2 ? config.errorColor : config.warningColor;

@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 15:49:22
  * @last modified by: yanglei07
- * @last modified time: 2018-06-09 17:40:30
+ * @last modified time: 2018-06-10 16:43:44
  */
 
 /* global  */
@@ -16,19 +16,10 @@ const File = require('vinyl');
 
 const config = require('./config.js');
 
-const fecs = (() => {
-    let fecsLib = null;
-    try {
-        fecsLib = require('fecs');
-    }
-    catch (ex) {
-        fecsLib = null;
-    }
-    return fecsLib;
-})();
+const fecs = require('fecs');
 
 function getLinterType(filePath) {
-    let ext = nodePathLib.extname(filePath).substr(1);
+    const ext = nodePathLib.extname(filePath).substr(1);
     if (!ext) {
         return '';
     }
@@ -37,9 +28,9 @@ function getLinterType(filePath) {
         return 'lesslint';
     }
 
-    let type = config.typeMap.get(ext);
+    const type = config.typeMap.get(ext);
     if (!type) {
-        return;
+        return '';
     }
 
     let linterType = 'eslint';
@@ -62,76 +53,26 @@ function getLinterType(filePath) {
 
 function createCodeStream(code = '', filePath = '') {
 
-    let type = filePath.split('.').pop();
+    const type = filePath.split('.').pop();
 
-    let buf = Buffer.from(code);
-    let file = new File({
+    const buf = Buffer.from(code);
+    const file = new File({
         contents: buf,
         path: filePath || 'current-file.' + type,
         stat: {
             size: buf.length
         }
     });
-    let stream = new Readable();
+    const stream = new Readable();
+    /* eslint-disable no-underscore-dangle */
     stream._read = function () {
+    /* eslint-enable no-underscore-dangle */
         this.emit('data', file);
         this.push(null);
     };
     return stream;
 }
 
-function check(oriCode = '', filePath = '') {
-
-    let {code, disableErrors} = ignoreGlobalEslintDisalbe(oriCode, filePath);
-
-    let fileStream = createCodeStream(code, filePath);
-    let isES6 = isUseES6(code, filePath);
-    let linterType = getLinterType(filePath);
-
-    let p = new Promise((r, j) => {
-        fecs.check({
-            es: isES6 ? 6 : 5,
-            lookup: true,
-            stream: fileStream,
-            reporter: config.en ? '' : 'baidu',
-            level: config.level
-        }, (success, json) => {
-
-            let errors = (json[0] || {}).errors || [];
-            errors = errors.concat(disableErrors);
-            errors.forEach(err => err.linterType = linterType);
-            r(errors);
-        });
-    });
-
-    return p;
-}
-
-function format(oriCode = '', filePath = '') {
-
-    let code = ignoreGlobalEslintDisalbe(oriCode, filePath).code;
-
-    let fileStream = createCodeStream(code, filePath);
-    let isES6 = isUseES6(code, filePath);
-
-    let p = new Promise((r, j) => {
-
-        let bufData = [];
-        fecs.format({
-            es: isES6 ? 6 : 5, // 好像  此项配置对 format 无效？
-            lookup: true,
-            stream: fileStream,
-            reporter: config.en ? '' : 'baidu',
-            level: config.level
-        }).on('data', file => {
-            bufData = bufData.concat(file.contents);
-        }).on('end', () => {
-            r(bufData.toString('utf8'));
-        });
-    });
-
-    return p;
-}
 
 /**
  * 通过正则简单判断是否是 es6 语法， 只能覆盖一部分场景， 无法 100% 识别， 但一般基本够用
@@ -166,7 +107,7 @@ function isUseES6(code, filePath) {
         .replace(/\/(?:[^\\/\n\r\f]|\\[\s\S])+\/[gimuy]*/g, '/x/');
 
     //  匹配 ES6 语法， 估计一堆 bug, 凑合用
-    let regList = [
+    const regList = [
         /(^|[^.])\b(let|const|import|export|of|class|async|yield|await)\b([^.]|$)/, // 部分关键字
 
         /[\]}]\s*=/, // 解构： var {x,y} = obj; var [x,y] = arr;
@@ -179,9 +120,16 @@ function isUseES6(code, filePath) {
     return regList.some(reg => reg.test(code));
 }
 
+/**
+ * 忽略全局 eslint-disable
+ *
+ * @param {string} code 源码字符串
+ * @param {string} filePath 文件路径
+ * @return {Object} 返回值
+ */
 function ignoreGlobalEslintDisalbe(code, filePath) {
 
-    let disableErrors = [];
+    const disableErrors = [];
 
     // 非 .js 文件不做处理， 直接返回
     if (!config.ignoreGlobalEslintDisalbe || !/\.js$/.test(filePath)) {
@@ -197,7 +145,7 @@ function ignoreGlobalEslintDisalbe(code, filePath) {
             lastLineOffset = offset;
             return m;
         }
-        let err = {
+        const err = {
             message: '大神， 求不要这么暴力的 eslint-disable , 可怜可怜后面的接盘侠吧~',
             rule: 'no-eslint-global-disable',
             line: lastLineIndex,
@@ -208,6 +156,61 @@ function ignoreGlobalEslintDisalbe(code, filePath) {
         return prefix + 'eslint-enable' + suffix;
     });
     return {code, disableErrors};
+}
+
+function check(oriCode = '', filePath = '') {
+
+    const {code, disableErrors} = ignoreGlobalEslintDisalbe(oriCode, filePath);
+
+    const fileStream = createCodeStream(code, filePath);
+    const isES6 = isUseES6(code, filePath);
+    const linterType = getLinterType(filePath);
+
+    const p = new Promise(r => {
+        fecs.check({
+            es: isES6 ? 6 : 5,
+            lookup: true,
+            stream: fileStream,
+            reporter: config.en ? '' : 'baidu',
+            level: config.level
+        }, (success, json) => {
+
+            let errors = (json[0] || {}).errors || [];
+            errors = errors.concat(disableErrors);
+            errors.forEach(err => {
+                err.linterType = linterType;
+            });
+            r(errors);
+        });
+    });
+
+    return p;
+}
+
+function format(oriCode = '', filePath = '') {
+
+    const code = ignoreGlobalEslintDisalbe(oriCode, filePath).code;
+
+    const fileStream = createCodeStream(code, filePath);
+    const isES6 = isUseES6(code, filePath);
+
+    const p = new Promise(r => {
+
+        let bufData = [];
+        fecs.format({
+            es: isES6 ? 6 : 5, // 好像  此项配置对 format 无效？
+            lookup: true,
+            stream: fileStream,
+            reporter: config.en ? '' : 'baidu',
+            level: config.level
+        }).on('data', file => {
+            bufData = bufData.concat(file.contents);
+        }).on('end', () => {
+            r(bufData.toString('utf8'));
+        });
+    });
+
+    return p;
 }
 
 exports.check = check;

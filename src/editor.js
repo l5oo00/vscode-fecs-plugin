@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-09 17:51:24
+ * @last modified time: 2018-06-10 16:34:52
  */
 
 /* global  */
@@ -20,7 +20,7 @@ const config = require('./config.js');
 
 const {window, Position, Range} = vscode;
 
-let editorMap = new Map();
+const editorMap = new Map();
 
 class Editor {
     constructor(vscEditor) {
@@ -86,7 +86,7 @@ class Editor {
         this.clearCheckDelayTimer();
 
         if (needDelay === true) {
-            let p = new Promise((r, j) => {
+            const p = new Promise((r, j) => {
                 this.checkDelayCancel = j;
                 this.checkDelayTimer = setTimeout(() => {
                     this.checkDelayTimer = null;
@@ -94,9 +94,9 @@ class Editor {
                     this.checkDelayCancel = null;
                 }, 1000);
             });
-            return p.then(() => {
-                return this.check();
-            }).catch(() => {});
+            return p.then(() => this.check()).catch(() => {
+                // just empty
+            });
         }
 
         this.needCheck = false;
@@ -125,9 +125,9 @@ class Editor {
         }
 
         this.formatPromise = this.doc.format().then(code => {
-            let startPos = new Position(0, 0);
-            let endPos = new Position(this.doc.vscDocument.lineCount, 0);
-            let range = new Range(startPos, endPos);
+            const startPos = new Position(0, 0);
+            const endPos = new Position(this.doc.vscDocument.lineCount, 0);
+            const range = new Range(startPos, endPos);
 
             return this.vscEditor.edit(editBuilder => {
                 editBuilder.replace(range, code);
@@ -135,7 +135,9 @@ class Editor {
             });
         });
 
-        return this.formatPromise.catch(() => {}).then(() => {
+        return this.formatPromise.catch(() => {
+            // just empty
+        }).then(() => {
             this.formatPromise = null;
         });
     }
@@ -146,7 +148,7 @@ class Editor {
         this.clear();
 
         errors.forEach(err => {
-            let lineIndex = err.line - 1;
+            const lineIndex = err.line - 1;
             err.msg = err.message.trim();
             this.diagnostics.push(createDiagnostic(err));
             this.errorMap.set(lineIndex, (this.errorMap.get(lineIndex) || []).concat(err));
@@ -154,9 +156,9 @@ class Editor {
 
         this.errorMap.forEach(errs => {
             errs.sort((a, b) => b.severity - a.severity);
-            let err = errs[0];
-            let lineIndex = err.line - 1;
-            let decortation = createDecoration(lineIndex);
+            const err = errs[0];
+            const lineIndex = err.line - 1;
+            const decortation = createDecoration(lineIndex);
             if (err.severity === 2) {
                 this.errorDecorationList.push(decortation);
             }
@@ -183,27 +185,27 @@ class Editor {
     }
 
     getViewRuleUrl() {
-        let errors = this.getCurrentActiveErrors();
-        let err = errors[0];
+        const errors = this.getCurrentActiveErrors();
+        const err = errors[0];
 
         if (!err) {
-            return;
+            return '';
         }
 
         return config.searchUrl.replace(/\$\{query\}/, encodeURIComponent(err.linterType + ' ' + err.rule));
     }
 
     getCurrentActiveErrors() {
-        let editor = this;
-        let errorMap = editor.errorMap;
+        const editor = this;
+        const errorMap = editor.errorMap;
         if (errorMap.size === 0) {
-            return;
+            return [];
         }
 
-        let start = getSelectionPosition(editor.vscEditor.selection).start;
-        let startLine = editor.doc.vscDocument.lineAt(start);
-        let lineIndex = startLine.lineNumber;
-        let errors = errorMap.get(lineIndex) || [];
+        const start = getSelectionPosition(editor.vscEditor.selection).start;
+        const startLine = editor.doc.vscDocument.lineAt(start);
+        const lineIndex = startLine.lineNumber;
+        const errors = errorMap.get(lineIndex) || [];
         return errors;
     }
 
@@ -248,7 +250,7 @@ exports.dispose = () => {
 
     clearErrorRenderOutOfEditor();
 
-    for (let editor of editorMap.values()) {
+    for (const editor of editorMap.values()) {
         editor.dispose();
     }
     editorMap.clear();
@@ -261,8 +263,8 @@ exports.dispose = () => {
  */
 exports.disposeClosed = () => {
 
-    let unusedList = [];
-    for (let editor of editorMap.values()) {
+    const unusedList = [];
+    for (const editor of editorMap.values()) {
         if (editor.doc.vscDocument.isClosed) {
             unusedList.push(editor);
         }
@@ -285,7 +287,7 @@ exports.switch = vscEditor => {
 
     clearErrorRenderOutOfEditor();
 
-    let editor = vscEditor ? editorMap.get(vscEditor.id) : null;
+    const editor = vscEditor ? editorMap.get(vscEditor.id) : null;
     if (editor) {
         editor.renderErrors();
     }
