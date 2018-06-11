@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-06 13:42:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-10 16:24:55
+ * @last modified time: 2018-06-11 13:45:31
  */
 
 /* global  */
@@ -15,13 +15,8 @@ const util = require('./util.js');
 
 const Position = vscode.Position;
 
-exports.addDisableComment = editor => {
-
+function getErrorLineBlocks(editor) {
     const errorMap = editor.errorMap;
-    if (errorMap.size === 0) {
-        return;
-    }
-
     const {start, stop} = util.getSelectionPosition(editor.vscEditor.selection);
 
     const startLine = editor.doc.vscDocument.lineAt(start);
@@ -70,6 +65,18 @@ exports.addDisableComment = editor => {
 
         lineCount++;
     }
+
+    return {blocks, lineCount, allRules};
+}
+
+exports.addDisableComment = editor => {
+
+    const errorMap = editor.errorMap;
+    if (errorMap.size === 0) {
+        return;
+    }
+
+    const {lineCount, blocks, allRules} = getErrorLineBlocks(editor);
 
     // 不支持一次选择太多错误行， 避免滥用
     if (lineCount > 50) {
