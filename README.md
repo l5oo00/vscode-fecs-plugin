@@ -59,6 +59,7 @@ This extension contributes the following settings:
 - `vscode-fecs-plugin.htmlLikeExt`: Specified 'html like' files extension that can use fecs.
 - `vscode-fecs-plugin.excludePaths`: Uncheck the files in these directory.
 - `vscode-fecs-plugin.excludeFileNameSuffixes`: Uncheck the files with these suffixes.
+- `vscode-fecs-plugin.autoSaveFix`: Turns auto fix on save on or off.
 
 ### For more information
 
