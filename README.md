@@ -20,7 +20,7 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 
 - Default enable check
   - can be disabled by configuring `vscode-fecs-plugin.disableCheck` to `true`
-- Support [`.fecsrc`](./fecsrc/README.md)
+- Support [`.fecsrc`](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/fecsrc/README.md)
 - Support disable/enable check, run command:
   - `vscode-fecs-plugin: Disable check`
   - `vscode-fecs-plugin: Enable check`
@@ -32,7 +32,7 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 - Support search rule in borwser
   - `vscode-fecs-plugin.search-rule-in-browser`
   - click the error message in statusbar
-- [Demo](demo.md)
+- [Demo](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/demo.md)
   ![javascript](images/js.png)
 
 > **Attention:** the gutter icon for this extension will overlap the 'debug break point' icon.
