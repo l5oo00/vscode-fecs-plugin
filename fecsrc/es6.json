@@ -279,7 +279,6 @@
             "import/no-dynamic-require": "warn",
             "import/no-internal-modules": "off",
             "import/no-webpack-loader-syntax": "warn",
-            "no-self-import": "error",
             "import/export": "error",
             "import/no-named-as-default": "warn",
             "import/no-named-as-default-member": "error",
@@ -404,5 +403,8 @@
                 }
             ]
         }
+    },
+    "htmlcs": {
+        "max-len": 120
     }
 }

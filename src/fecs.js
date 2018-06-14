@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 15:49:22
  * @last modified by: yanglei07
- * @last modified time: 2018-06-10 16:43:44
+ * @last modified time: 2018-06-14 14:27:31
  */
 
 /* global  */
@@ -75,7 +75,7 @@ function createCodeStream(code = '', filePath = '') {
 
 
 /**
- * 通过正则简单判断是否是 es6 语法， 只能覆盖一部分场景， 无法 100% 识别， 但一般基本够用
+ * 通过正则简单判断是否没有使用 es6 语法， 只能覆盖一部分场景， 无法 100% 识别， 但一般基本够用
  *
  * @note 魔改 fecs 后， 此功能基本成废物了 ： https://github.com/ecomfe/fecs/pull/323
  *
@@ -83,7 +83,7 @@ function createCodeStream(code = '', filePath = '') {
  * @param {string} filePath 代码文件路径
  * @return {boolean} 是 es 语法则返回 true
  */
-function isUseES6(code, filePath) {
+function isNoES6(code, filePath) {
 
     // 非 .js 文件不会使用此项配置， 直接返回 false
     if (!/\.js$/.test(filePath)) {
@@ -117,7 +117,8 @@ function isUseES6(code, filePath) {
         /(^|[^.])function\s*\*/ // generator 语法
     ];
 
-    return regList.some(reg => reg.test(code));
+    const isES6 = regList.some(reg => reg.test(code));
+    return !isES6;
 }
 
 /**
@@ -158,22 +159,34 @@ function ignoreGlobalEslintDisalbe(code, filePath) {
     return {code, disableErrors};
 }
 
-function check(oriCode = '', filePath = '') {
+function prepareFecsConfig(oriCode, filePath) {
 
     const {code, disableErrors} = ignoreGlobalEslintDisalbe(oriCode, filePath);
 
     const fileStream = createCodeStream(code, filePath);
-    const isES6 = isUseES6(code, filePath);
+    const isES5 = isNoES6(code, filePath);
+
+    const conf = {
+        lookup: true,
+        stream: fileStream,
+        reporter: config.en ? '' : 'baidu',
+        level: config.level
+    };
+    if (isES5) {
+        conf.es = 5;
+    }
+    return {
+        conf, disableErrors
+    };
+}
+
+function check(oriCode = '', filePath = '') {
+
+    const {conf, disableErrors} = prepareFecsConfig(oriCode, filePath);
     const linterType = getLinterType(filePath);
 
     const p = new Promise(r => {
-        fecs.check({
-            es: isES6 ? 6 : 5,
-            lookup: true,
-            stream: fileStream,
-            reporter: config.en ? '' : 'baidu',
-            level: config.level
-        }, (success, json) => {
+        fecs.check(conf, (success, json) => {
 
             let errors = (json[0] || {}).errors || [];
             errors = errors.concat(disableErrors);
@@ -189,21 +202,12 @@ function check(oriCode = '', filePath = '') {
 
 function format(oriCode = '', filePath = '') {
 
-    const code = ignoreGlobalEslintDisalbe(oriCode, filePath).code;
-
-    const fileStream = createCodeStream(code, filePath);
-    const isES6 = isUseES6(code, filePath);
+    const {conf, disableErrors} = prepareFecsConfig(oriCode, filePath);
 
     const p = new Promise(r => {
 
         let bufData = [];
-        fecs.format({
-            es: isES6 ? 6 : 5, // 好像  此项配置对 format 无效？
-            lookup: true,
-            stream: fileStream,
-            reporter: config.en ? '' : 'baidu',
-            level: config.level
-        }).on('data', file => {
+        fecs.format(conf).on('data', file => {
             bufData = bufData.concat(file.contents);
         }).on('end', () => {
             r(bufData.toString('utf8'));
