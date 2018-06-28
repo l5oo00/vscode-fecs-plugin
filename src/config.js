@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:07:41
  * @last modified by: yanglei07
- * @last modified time: 2018-06-10 16:25:16
+ * @last modified time: 2018-06-27 19:40:3
  */
 
 /* global  */
@@ -31,7 +31,7 @@ const config = {
     autoFormatOnSave: configuration.get('autoFormatOnSave', false)
 };
 
-['js', 'css', 'html'].forEach(type => {
+['js', 'css', 'html', 'vue'].forEach(type => {
     configuration.get(type + 'LikeExt', []).forEach(ext => {
         config.typeMap.set(ext, type);
     });

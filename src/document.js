@@ -4,13 +4,13 @@
  * @description ..
  * @create data: 2018-06-02 16:29:2
  * @last modified by: yanglei07
- * @last modified time: 2018-06-10 16:30:38
+ * @last modified time: 2018-06-28 10:38:9
  */
 
 /* global  */
 'use strict';
 const nodePathLib = require('path');
-const {getFileExtName, isSupportFilePath} = require('./util.js');
+const {getFileExtName, isSupportFilePath, isVueLike} = require('./util.js');
 const fecs = require('./fecs.js');
 
 const documentMap = new Map();
@@ -55,8 +55,8 @@ class Document {
 
         this.updateCheckFilePath();
 
-        if (this.FileExtName === 'vue' || this.FileExtName === 'san') {
-            this.checkPromise = this.checkVueOrSan(this.vscDocument.getText(), this.checkFilePath);
+        if (isVueLike(this.FileExtName)) {
+            this.checkPromise = this.checkVueLike(this.vscDocument.getText(), this.checkFilePath);
         }
         else {
             this.checkPromise = fecs.check(this.vscDocument.getText(), this.checkFilePath);
@@ -76,8 +76,8 @@ class Document {
 
         this.updateCheckFilePath();
 
-        if (this.FileExtName === 'vue' || this.FileExtName === 'san') {
-            this.formatPromise = this.formatVueOrSan(this.vscDocument.getText(), this.checkFilePath);
+        if (isVueLike(this.FileExtName)) {
+            this.formatPromise = this.formatVueLike(this.vscDocument.getText(), this.checkFilePath);
         }
         else {
             this.formatPromise = fecs.format(this.vscDocument.getText(), this.checkFilePath);
@@ -90,8 +90,8 @@ class Document {
         return this.formatPromise;
     }
 
-    checkVueOrSan(code, filePath) {
-        const blocks = this.splitVueOrSanCode(code, filePath, true);
+    checkVueLike(code, filePath) {
+        const blocks = this.splitVueLikeCode(code, filePath, true);
 
         const task = blocks.map(
             block => fecs.check(block.content, block.filePath)
@@ -112,8 +112,8 @@ class Document {
         });
     }
 
-    formatVueOrSan(code, filePath) {
-        const blocks = this.splitVueOrSanCode(code, filePath);
+    formatVueLike(code, filePath) {
+        const blocks = this.splitVueLikeCode(code, filePath);
 
         const task = blocks.map(
             block => fecs.format(block.content, block.filePath)
@@ -138,7 +138,7 @@ class Document {
         });
     }
 
-    splitVueOrSanCode(code, filePath, needWrapCode = false) {
+    splitVueLikeCode(code, filePath, needWrapCode = false) {
         const vscDocument = this.vscDocument;
 
         const templateReg = /(<template(.*)>)([\s\S]+)(<\/template>)/g;
@@ -146,7 +146,6 @@ class Document {
         const styleReg = /(<style(.*)>)([\s\S]+)(<\/style>)/g;
 
         const blocks = [];
-        const index = 0;
 
         // 暂时只对 js 进行 wrap
         function wrapCode(block) {
@@ -166,14 +165,16 @@ class Document {
         }
         function exec(reg, defaultLang) {
             let m = reg.exec(code);
+            let index = 0;
             while (m) {
+                index++;
                 const content = m[3];
                 const codeBegin = m.index + m[1].length;
                 const codeEnd = codeBegin + content.length;
                 let lang = /\slang=['"](.*)['"]/.exec(m[2]) || [];
                 lang = lang[1] || defaultLang;
 
-                const mockFilePath = filePath + '-' + index + '.' + lang;
+                const mockFilePath = filePath + '-' + defaultLang + '-' + index + '.' + lang;
 
                 if (isSupportFilePath(mockFilePath)) {
 

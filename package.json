@@ -58,9 +58,7 @@
             "js",
             "jsx",
             "es",
-            "es6",
-            "vue",
-            "san"
+            "es6"
           ],
           "title": "Fecs files with these extensions",
           "type": "array",
@@ -84,6 +82,16 @@
           "title": "Fecs files with these extensions",
           "type": "array",
           "description": "Specified 'html like' files extension that can use fecs."
+        },
+        "vscode-fecs-plugin.vueLikeExt": {
+          "default": [
+            "vue",
+            "san",
+            "atom"
+          ],
+          "title": "Fecs files with these extensions",
+          "type": "array",
+          "description": "Specified 'vue like' files extension that can use fecs."
         },
         "vscode-fecs-plugin.excludePaths": {
           "default": [
@@ -129,11 +137,15 @@
       },
       {
         "command": "vscode-fecs-plugin.add-disable-rule-comment",
-        "title": "vscode-fecs-plugin: Add Disable Rule Comments"
+        "title": "vscode-fecs-plugin: Add disable rule comments"
+      },
+      {
+        "command": "vscode-fecs-plugin.add-disable-rule-comment-for-entire-selection-block",
+        "title": "vscode-fecs-plugin: Add disable rule comments for entire selection block"
       },
       {
         "command": "vscode-fecs-plugin.search-rule-in-browser",
-        "title": "vscode-fecs-plugin: Search Rule In Browser"
+        "title": "vscode-fecs-plugin: Search rule in browser"
       }
     ],
     "keybindings": [

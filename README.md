@@ -25,12 +25,13 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
   - `vscode-fecs-plugin: Disable check`
   - `vscode-fecs-plugin: Enable check`
 - Support add inline disable rule comments quickly (*only support `eslint`*)
-  - `vscode-fecs-plugin: Add Disable Rule Comments`
+  - `vscode-fecs-plugin: Add disable rule comments`
+  - `vscode-fecs-plugin: Add disable rule comments for entire selection block`
   > **this feature is dangerous, please use it with caution**
 - Support ignore `/* eslint-disalbe */`
   - can be disabled by configuring `vscode-fecs-plugin.ignoreGlobalEslintDisalbe` to `false`
 - Support search rule in borwser
-  - `vscode-fecs-plugin.search-rule-in-browser`
+  - `vscode-fecs-plugin: Search rule in browser`
   - click the error message in statusbar
 - [Demo](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/demo.md)
   ![javascript](images/js.png)
@@ -47,8 +48,11 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 - css
 - less
 - html
-- vue
-- san
+- vue like file
+  - vue
+  - san
+  - atom
+  - any other vue like files ...
 
 ## Extension Settings
 
@@ -61,6 +65,7 @@ This extension contributes the following settings:
 - `vscode-fecs-plugin.jsLikeExt`: Specified 'js like' files extension that can use fecs.
 - `vscode-fecs-plugin.cssLikeExt`: Specified 'css like' files extension that can use fecs.
 - `vscode-fecs-plugin.htmlLikeExt`: Specified 'html like' files extension that can use fecs.
+- `vscode-fecs-plugin.vueLikeExt`: Specified 'vue like' files extension that can use fecs.
 - `vscode-fecs-plugin.excludePaths`: Uncheck the files in these directory.
 - `vscode-fecs-plugin.excludeFileNameSuffixes`: Uncheck the files with these suffixes.
 - `vscode-fecs-plugin.searchUrl`: Search engine url, replace query by `${query}`, used to search for error rule.

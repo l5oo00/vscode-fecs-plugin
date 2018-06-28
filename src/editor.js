@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-10 16:34:52
+ * @last modified time: 2018-06-28 10:23:55
  */
 
 /* global  */
@@ -55,6 +55,7 @@ class Editor {
         this.warningDecorationList = [];
         this.errorDecorationList = [];
     }
+
     clearCheckDelayTimer() {
         if (this.checkDelayTimer) {
             clearTimeout(this.checkDelayTimer);
@@ -180,8 +181,8 @@ class Editor {
         }
     }
 
-    addDisableComment() {
-        addDisableComment(this);
+    addDisableComment(forEntireSelectionBlock = false) {
+        addDisableComment(this, forEntireSelectionBlock);
     }
 
     getViewRuleUrl() {

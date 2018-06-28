@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-10 16:15:14
+ * @last modified time: 2018-06-28 09:09:53
  */
 
 /* global  */
@@ -82,6 +82,20 @@ function registerNewCommand(context) {
         });
     }
 
+    function registerAddDisableCommentForEntireSelectionBlockCommand() {
+        return commands.registerCommand(
+            'vscode-fecs-plugin.add-disable-rule-comment-for-entire-selection-block',
+            () => {
+                const editor = window.activeTextEditor;
+                if (!editor || !isSupportEditor(editor)) {
+                    return;
+                }
+
+                editorLib.wrap(editor).addDisableComment(true);
+            }
+        );
+    }
+
     function registerSearchRuleInBrowserCommand() {
         return commands.registerCommand('vscode-fecs-plugin.search-rule-in-browser', () => {
             const editor = window.activeTextEditor;
@@ -101,6 +115,7 @@ function registerNewCommand(context) {
     context.subscriptions.push(registerDisableCheckCommand());
     context.subscriptions.push(registerEnableCheckCommand());
     context.subscriptions.push(registerAddDisableCommentCommand());
+    context.subscriptions.push(registerAddDisableCommentForEntireSelectionBlockCommand());
     context.subscriptions.push(registerSearchRuleInBrowserCommand());
 }
 

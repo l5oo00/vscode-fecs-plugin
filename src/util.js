@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 18:24:6
  * @last modified by: yanglei07
- * @last modified time: 2018-06-10 16:44:53
+ * @last modified time: 2018-06-28 09:12:47
  */
 
 /* global  */
@@ -97,3 +97,9 @@ function getSelectionPosition(selection) {
     return {start, stop};
 }
 exports.getSelectionPosition = getSelectionPosition;
+
+
+function isVueLike(extName) {
+    return config.typeMap.get(extName) === 'vue';
+}
+exports.isVueLike = isVueLike;
