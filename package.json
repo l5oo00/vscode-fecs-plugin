@@ -166,7 +166,7 @@
     "@types/mocha": "^2.2.32"
   },
   "dependencies": {
-    "fecs": "^1.5.5",
+    "fecs": "^1.6.0",
     "vinyl": "^2.0.2"
   }
 }
