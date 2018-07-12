@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 15:49:22
  * @last modified by: yanglei07
- * @last modified time: 2018-06-14 14:27:31
+ * @last modified time: 2018-07-11 19:59:54
  */
 
 /* global  */
@@ -14,7 +14,8 @@ const nodePathLib = require('path');
 
 const File = require('vinyl');
 
-const config = require('./config.js');
+const config = require('../config.js');
+const errLib = require('./error.js');
 
 const fecs = require('fecs');
 
@@ -190,8 +191,15 @@ function check(oriCode = '', filePath = '') {
 
             let errors = (json[0] || {}).errors || [];
             errors = errors.concat(disableErrors);
-            errors.forEach(err => {
-                err.linterType = linterType;
+            errors = errors.map(err => {
+                return errLib.format(
+                    err.line,
+                    err.column,
+                    err.severity,
+                    err.message,
+                    err.rule,
+                    linterType
+                );
             });
             r(errors);
         });
@@ -202,16 +210,18 @@ function check(oriCode = '', filePath = '') {
 
 function format(oriCode = '', filePath = '') {
 
-    const {conf, disableErrors} = prepareFecsConfig(oriCode, filePath);
+    const {conf} = prepareFecsConfig(oriCode, filePath);
 
     const p = new Promise(r => {
 
         let bufData = [];
-        fecs.format(conf).on('data', file => {
-            bufData = bufData.concat(file.contents);
-        }).on('end', () => {
-            r(bufData.toString('utf8'));
-        });
+        fecs.format(conf)
+            .on('data', file => {
+                bufData = bufData.concat(file.contents);
+            })
+            .on('end', () => {
+                r(bufData.toString('utf8'));
+            });
     });
 
     return p;

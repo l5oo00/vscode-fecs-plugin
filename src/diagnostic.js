@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 19:20:47
  * @last modified by: yanglei07
- * @last modified time: 2018-06-10 16:29:1
+ * @last modified time: 2018-07-12 09:41:15
  */
 
 /* global  */
@@ -18,10 +18,12 @@ const diagnosticCollection = languages.createDiagnosticCollection('fecs');
 
 function createDiagnostic(data) {
 
-    const lineIndex = data.line - 1;
-    const cloumnIndex = data.column - 1;
-    const startPos = new Position(lineIndex, cloumnIndex);
-    const endPos = new Position(lineIndex, cloumnIndex);
+    const startLineIndex = data.line - 1;
+    const startCloumnIndex = data.column - 1;
+    const endLineIndex = data.endLine - 1;
+    const endColumnIndex = data.endColumn - 1;
+    const startPos = new Position(startLineIndex, startCloumnIndex);
+    const endPos = new Position(endLineIndex, endColumnIndex);
     const range = new Range(startPos, endPos);
 
     const message = data.msg;

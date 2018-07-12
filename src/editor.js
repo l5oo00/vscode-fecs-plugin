@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-28 10:23:55
+ * @last modified time: 2018-07-12 09:26:40
  */
 
 /* global  */
@@ -136,8 +136,8 @@ class Editor {
             });
         });
 
-        return this.formatPromise.catch(() => {
-            // just empty
+        return this.formatPromise.catch(err => {
+            window.showErrorMessage('Format Error!\n' + err);
         }).then(() => {
             this.formatPromise = null;
         });

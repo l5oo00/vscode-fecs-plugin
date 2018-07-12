@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-06 13:42:14
  * @last modified by: yanglei07
- * @last modified time: 2018-06-28 09:55:33
+ * @last modified time: 2018-07-12 10:18:19
  */
 
 /* global  */
@@ -15,6 +15,7 @@ const util = require('./util.js');
 
 function initBlock(beginLine, endLine = null) {
     return {
+        linterType: '',
         beginLineIndex: beginLine.lineNumber,
         EndLineIndex: endLine ? endLine.lineNumber : beginLine.lineNumber,
         beginLineWhitespacePrefix: beginLine.text.substr(0, beginLine.firstNonWhitespaceCharacterIndex)
@@ -25,6 +26,25 @@ function initBlock(beginLine, endLine = null) {
         ) || '',
         rules: new Set()
     };
+}
+
+// 支持自动添加注释的 linter
+const supportLinterSet = new Set(['eslint', 'tslint']);
+function isSupportLinter(linterType) {
+    return supportLinterSet.has(linterType);
+}
+function formatComment(linterType, rules, enableOrDisable) {
+    function eslint(rules, enableOrDisable) {
+        return '/* eslint-' + enableOrDisable + ' ' + rules.join(',') + ' */';
+    }
+    function tslint(rules, enableOrDisable) {
+        return '/* tslint:' + enableOrDisable + ':' + rules.join(' ') + ' */';
+    }
+    const map = {
+        eslint, tslint
+    };
+
+    return map[linterType](rules, enableOrDisable);
 }
 
 function getErrorLineBlocks(editor) {
@@ -47,20 +67,25 @@ function getErrorLineBlocks(editor) {
         }
 
         const rules = new Set();
-        const isEslint = errors.every(err => {
+        let linterType = '';
+        const isSupport = errors.every(err => {
             rules.add(err.rule);
-            return err.linterType === 'eslint';
+            linterType = err.linterType;
+            return isSupportLinter(err.linterType);
         });
-        if (!isEslint) {
+        if (!isSupport) {
             continue;
         }
 
-        if (!block || block.EndLineIndex + 1 < i) {
+        if (!block || block.EndLineIndex + 1 < i
+            || linterType !== block.linterType // 应该不会存在这种情况吧？ 这里还是判断下
+        ) {
             const beginLine = vscDocument.lineAt(i);
             block = initBlock(beginLine);
             blocks.push(block);
         }
 
+        block.linterType = block.linterType || linterType;
         block.rules = new Set([...block.rules, ...rules]);
         block.EndLineIndex = i;
         allRules = new Set([...allRules, ...rules]);
@@ -92,18 +117,22 @@ function getErrorLineBlock(editor) {
         }
 
         const rules = new Set();
-        const isEslint = errors.every(err => {
+        let linterType = '';
+        const isSupport = errors.every(err => {
             rules.add(err.rule);
-            return err.linterType === 'eslint';
+            linterType = err.linterType;
+            return isSupportLinter(err.linterType);
         });
+
+        block.linterType = block.linterType || linterType;
 
         // vue like 文件里， 可能会同时选择 js 和 （style 或 template）
         // 若选中的 template 和 style 里的代码没有问题， 这个检测就失效了
         // 自动加的注释就失效了， 这种情况我就不管了。。。
-        if (!isEslint) {
+        if (!isSupport || linterType !== block.linterType) {
             // 这里就不做兼容了， 直接提示错误
             if (util.isVueLike(editor.doc.FileExtName)) {
-                window.showInformationMessage('不要选择 <script> 以外的代码');
+                window.showInformationMessage('不要同时选择不同语言的代码来添加禁用规则');
             }
             return {blocks, errorLineCount: 0, allRules: new Set()};
         }
@@ -153,9 +182,9 @@ exports.addDisableComment = (editor, forEntireSelectionBlock = false) => {
     editor.vscEditor.edit(editBuilder => {
         for (let i = 0; i < blocks.length; i++) {
             const block = blocks[i];
-            const rules = [...block.rules].join(', ');
-            const disable = block.beginLineWhitespacePrefix + '/* eslint-disable ' + rules + ' */\n';
-            const enable = block.endLineWhitespacePrefix + '/* eslint-enable ' + rules + ' */\n';
+            const rules = [...block.rules];
+            const disable = block.beginLineWhitespacePrefix + formatComment(block.linterType, rules, 'disable') + '\n';
+            const enable = block.endLineWhitespacePrefix + formatComment(block.linterType, rules, 'enable') + '\n';
 
             const startLineIndex = block.beginLineIndex;
             const stopLineIndex = block.EndLineIndex;

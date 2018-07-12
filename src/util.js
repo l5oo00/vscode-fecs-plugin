@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 18:24:6
  * @last modified by: yanglei07
- * @last modified time: 2018-06-28 09:12:47
+ * @last modified time: 2018-07-11 18:14:33
  */
 
 /* global  */
@@ -25,6 +25,8 @@ exports.log = log;
 const languageMap = {
     javascript: 'js',
     javascriptreact: 'jsx',
+    typescript: 'ts',
+    typescriptreact: 'tsx',
     css: 'css',
     less: 'less',
     scss: 'scss',
@@ -33,12 +35,25 @@ const languageMap = {
     san: 'san'
 };
 function getFileExtName(document) {
-    const fileName = document.fileName || '';
+
+    let fileName = '';
+    let languageId = '';
+    if (typeof document === 'string') {
+        fileName = document;
+    }
+    else {
+        fileName = document.fileName || '';
+        languageId = document.languageId;
+    }
+
     let ext = nodePathLib.extname(fileName).substr(1);
 
     // 没有扩展名的文件， 根据语言来识别
-    if (!ext) {
-        ext = languageMap[document.languageId] || '';
+    if (ext) {
+        ext = languageMap[ext] || ext;
+    }
+    else if (languageId) {
+        ext = languageMap[languageId] || '';
     }
     return ext;
 }

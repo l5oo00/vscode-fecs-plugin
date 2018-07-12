@@ -58,7 +58,9 @@
             "js",
             "jsx",
             "es",
-            "es6"
+            "es6",
+            "ts",
+            "tsx"
           ],
           "title": "Fecs files with these extensions",
           "type": "array",

@@ -45,6 +45,7 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 > Use the extension name to do support detection. When the extension name is empty, use the language id set by the current file to detect.
 
 - javascript
+- typescript
 - css
 - less
 - html

@@ -4,19 +4,19 @@
  * @description ..
  * @create data: 2018-06-02 16:29:2
  * @last modified by: yanglei07
- * @last modified time: 2018-06-28 10:38:9
+ * @last modified time: 2018-07-11 17:42:27
  */
 
 /* global  */
 'use strict';
 const nodePathLib = require('path');
 const {getFileExtName, isSupportFilePath, isVueLike} = require('./util.js');
-const fecs = require('./fecs.js');
+const linter = require('./linter/index.js');
 
 const documentMap = new Map();
 
 /**
- * documet 辅助类， 主要负责调用 fecs 来做代码检查和格式化
+ * documet 辅助类， 主要负责调用 linter 来做代码检查和格式化
  */
 class Document {
 
@@ -59,7 +59,7 @@ class Document {
             this.checkPromise = this.checkVueLike(this.vscDocument.getText(), this.checkFilePath);
         }
         else {
-            this.checkPromise = fecs.check(this.vscDocument.getText(), this.checkFilePath);
+            this.checkPromise = linter.check(this.vscDocument.getText(), this.checkFilePath);
         }
 
         this.checkPromise.then(() => {
@@ -80,7 +80,7 @@ class Document {
             this.formatPromise = this.formatVueLike(this.vscDocument.getText(), this.checkFilePath);
         }
         else {
-            this.formatPromise = fecs.format(this.vscDocument.getText(), this.checkFilePath);
+            this.formatPromise = linter.format(this.vscDocument.getText(), this.checkFilePath);
         }
 
         this.formatPromise.then(() => {
@@ -94,7 +94,7 @@ class Document {
         const blocks = this.splitVueLikeCode(code, filePath, true);
 
         const task = blocks.map(
-            block => fecs.check(block.content, block.filePath)
+            block => linter.check(block.content, block.filePath)
                 .then(errors => {
                     errors.forEach(err => {
                         err.line += block.lineBeginIndex - block.wrapLineCount;
@@ -116,7 +116,7 @@ class Document {
         const blocks = this.splitVueLikeCode(code, filePath);
 
         const task = blocks.map(
-            block => fecs.format(block.content, block.filePath)
+            block => linter.format(block.content, block.filePath)
                 .then(formatContent => {
                     block.formatContent = formatContent;
                     return block;
