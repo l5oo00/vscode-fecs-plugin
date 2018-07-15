@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 20:20:4
  * @last modified by: yanglei07
- * @last modified time: 2018-06-28 09:09:53
+ * @last modified time: 2018-07-15 15:05:12
  */
 
 /* global  */
@@ -177,9 +177,7 @@ function activate(context) {
             return;
         }
 
-        window.visibleTextEditors.filter(e =>
-            e.document && e.document.fileName === document.fileName
-        ).forEach(e => {
+        window.visibleTextEditors.filter(e => e.document && e.document.fileName === document.fileName).forEach(e => {
             const editor = editorLib.wrap(e);
             editor.needCheck = true;
             editor.check(true);

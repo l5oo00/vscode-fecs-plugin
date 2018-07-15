@@ -20,7 +20,7 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 
 - Default enable check
   - can be disabled by configuring `vscode-fecs-plugin.disableCheck` to `true`
-- Support [`.fecsrc`](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/fecsrc/README.md)
+- Support [`.fecsrc` & `tslint.json`](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/fecsrc/README.md)
 - Support disable/enable check, run command:
   - `vscode-fecs-plugin: Disable check`
   - `vscode-fecs-plugin: Enable check`

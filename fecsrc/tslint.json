@@ -1,0 +1,98 @@
+{
+    "extends": [
+        "tslint:recommended","tslint-eslint-rules", "tslint-react"
+    ],
+    "rules": {
+
+        // tslint
+        "arrow-parens": [true, "ban-single-arg-parens"],
+        "arrow-return-shorthand": [true, "multiline"],
+        "file-header": [true, "^\\*\n \\* @file: "],
+        "deprecation": true,
+        "quotemark": [true, "single", "jsx-double"],
+        "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
+        "interface-name": [true, "never-prefix"],
+        "member-access": [true, "no-public"],
+        "one-line": false,
+        "ordered-imports": false,
+        "semicolon": [true, "always", "ignore-interfaces", "ignore-bound-class-methods"],
+        "no-empty-interface": {
+            "severity": "warn"
+        },
+        "object-literal-sort-keys": false,
+        "jsx-self-close": {
+            "severity": "warn"
+        },
+        "indent":  [true, "spaces", 4],
+        "jsdoc-format": [true, "check-multiline-start"],
+        "member-ordering": {
+            "options": {
+                "order": "statics-first"
+            }
+        },
+        "no-any": {
+            "severity": "warn"
+        },
+        "no-consecutive-blank-lines": [true, 2],
+        // "no-magic-numbers": true,
+        "no-invalid-template-strings": true,
+        "no-unnecessary-callback-wrapper": true,
+        "no-switch-case-fall-through": true,
+        "space-before-function-paren": {
+            "options": {
+                "anonymous": "always",
+                "asyncArrow": "always",
+                "constructor": "never",
+                "method": "never",
+                "named": "never"
+            }
+        },
+        "triple-equals": true,
+        "no-duplicate-switch-case": true,
+        "no-non-null-assertion": true,
+        "promise-function-async": true,
+        "await-promise": [true, "Thenable"],
+        "no-dynamic-delete": true,
+        "no-floating-promises": true,
+        "no-return-await": true,
+        "no-sparse-arrays": true,
+        "no-unbound-method": [true, "ignore-static"],
+        "no-unsafe-any": true,
+        "prefer-object-spread": true,
+        "restrict-plus-operands": true,
+        "switch-default": {
+            "severity": "warn"
+        },
+        "typeof-compare": true,
+        "use-default-type-parameter": true,
+        "linebreak-style": [true, "LF"],
+        "no-duplicate-imports": true,
+        "no-require-imports": true,
+        "encoding": true,
+        "newline-per-chained-call": true,
+        "no-boolean-literal-compare": true,
+        "number-literal-format": true,
+        "switch-final-break": [true, "always"],
+
+        // tslint-eslint-rules
+        "no-constant-condition": [true, {"checkLoops": false}],
+        "no-control-regex": true,
+        "no-regex-spaces": true,
+        "no-empty-character-class": true,
+        "no-ex-assign": true,
+        "no-extra-boolean-cast": true,
+        "no-extra-semi": true,
+        "no-invalid-regexp": true,
+        "ter-no-irregular-whitespace": true,
+        "no-unexpected-multiline": true,
+        "no-multi-spaces": true,
+        "ter-no-script-url": true,
+        "ter-no-self-compare": true,
+        "handle-callback-err": [true, "^(err|error)$"],
+        "ter-computed-property-spacing": [true, "never"],
+        "ter-indent": [true, 4],
+
+        // tslint-react
+        "jsx-space-before-trailing-slash": true
+    }
+}

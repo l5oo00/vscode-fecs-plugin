@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:46:14
  * @last modified by: yanglei07
- * @last modified time: 2018-07-12 09:26:40
+ * @last modified time: 2018-07-15 14:55:21
  */
 
 /* global  */
@@ -101,17 +101,20 @@ class Editor {
         }
 
         this.needCheck = false;
-        this.checkPromise = this.doc.check().then(errors => {
-            log('checkDone! Error count: ', errors.length);
-            this.prepareErrors(errors);
-            this.renderErrors();
-        }).catch(err => {
-            log(err);
-            this.needCheck = true;
-        });
-        this.checkPromise.then(() => {
-            this.checkPromise = null;
-        });
+        this.checkPromise = this.doc.check()
+            .then(errors => {
+                log('checkDone! Error count: ', errors.length);
+                this.prepareErrors(errors);
+                this.renderErrors();
+            })
+            .catch(err => {
+                log(err);
+                this.needCheck = true;
+            });
+        this.checkPromise
+            .then(() => {
+                this.checkPromise = null;
+            });
         return this.checkPromise;
     }
 

@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-07-11 17:29:4
  * @last modified by: yanglei07
- * @last modified time: 2018-07-11 18:31:19
+ * @last modified time: 2018-07-15 15:22:27
  */
 
 /* global  */
@@ -27,13 +27,23 @@ function getLinter(filePath) {
 }
 
 function check(code, filePath) {
-    const linter = getLinter(filePath);
-    return linter.check(code, filePath);
+    try {
+        const linter = getLinter(filePath);
+        return linter.check(code, filePath);
+    }
+    catch (ex) {
+        return Promise.reject(ex);
+    }
 }
 
 function format(code, filePath) {
-    const linter = getLinter(filePath);
-    return linter.format(code, filePath);
+    try {
+        const linter = getLinter(filePath);
+        return linter.format(code, filePath);
+    }
+    catch (ex) {
+        return Promise.reject(ex);
+    }
 }
 
 exports.check = check;

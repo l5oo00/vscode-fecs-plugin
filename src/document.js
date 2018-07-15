@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-06-02 16:29:2
  * @last modified by: yanglei07
- * @last modified time: 2018-07-11 17:42:27
+ * @last modified time: 2018-07-14 17:37:59
  */
 
 /* global  */
@@ -96,8 +96,10 @@ class Document {
         const task = blocks.map(
             block => linter.check(block.content, block.filePath)
                 .then(errors => {
+                    const diff = block.lineBeginIndex - block.wrapLineCount;
                     errors.forEach(err => {
-                        err.line += block.lineBeginIndex - block.wrapLineCount;
+                        err.line += diff;
+                        err.endLine += diff;
                     });
                     return errors;
                 })
