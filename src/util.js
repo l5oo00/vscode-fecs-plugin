@@ -4,12 +4,14 @@
  * @description ..
  * @create data: 2018-05-31 18:24:6
  * @last modified by: yanglei07
- * @last modified time: 2018-07-11 18:14:33
+ * @last modified time: 2018-09-06 13:39:48
  */
 
 /* global  */
 'use strict';
 const nodePathLib = require('path');
+const nodeUrlLib = require('url');
+const childProcess = require('child_process');
 
 const config = require('./config.js');
 
@@ -59,6 +61,27 @@ function getFileExtName(document) {
 }
 exports.getFileExtName = getFileExtName;
 
+function checkGitDomain(filePath, testArr) {
+    const dir = nodePathLib.dirname(filePath);
+    const cmd = 'git remote -v';
+
+    try {
+        let list = childProcess.execSync('cd ' + dir + ' && ' + cmd, {encoding: 'utf8'});
+        list = list.split(/\r?\n/).map(line => line.trim()).filter(line => line);
+
+        return list.some(line => {
+            const url = line.split(/\s+/)[1];
+            const urlObj = nodeUrlLib.parse(url);
+            const domain = urlObj.hostname;
+
+            return testArr.some(test => domain.endsWith(test));
+        });
+    }
+    catch (ex) {
+        return false;
+    }
+}
+
 function isSupportFilePath(filePath, ext = '') {
 
     if (!ext) {
@@ -82,6 +105,10 @@ function isSupportFilePath(filePath, ext = '') {
 
     support = config.excludeFileNameSuffixes.every(suffix => !filePath.endsWith(suffix));
     // !support && log('uncheck by suffix: ', filePath);
+
+    if (config.supportByGitDomainTest.length) {
+        support = checkGitDomain(filePath, config.supportByGitDomainTest);
+    }
 
     return support;
 }

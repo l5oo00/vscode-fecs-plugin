@@ -95,6 +95,12 @@
           "type": "array",
           "description": "Specified 'vue like' files extension that can use fecs."
         },
+        "vscode-fecs-plugin.supportByGitDomainTest": {
+            "default": [],
+            "title": "Only support git repositories that remote url match this configuration item.",
+            "type": "array",
+            "description": "Only support git repositories that remote url match this configuration item."
+        },
         "vscode-fecs-plugin.excludePaths": {
           "default": [
             "node_modules",

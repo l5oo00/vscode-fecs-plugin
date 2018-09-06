@@ -55,6 +55,18 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
   - atom
   - any other vue like files ...
 
+### Support by test the remote url of the git repository
+
+By configuring `supportByGitDomainTest` , this plugin can only support specific git repositories whose remote repository URLs must match this configuration item.
+
+example:
+
+- `supportByGitDomainTest: ['.github.com']`: only support the repositories that host on github.
+- `supportByGitDomainTest: ['.gitlab.com']`: only support the repositories that host on gitlab.
+- `supportByGitDomainTest: ['.github.com', '.gitlab.com']`: only support the repositories that host on github or gitlab.
+
+
+
 ## Extension Settings
 
 This extension contributes the following settings:
@@ -67,6 +79,7 @@ This extension contributes the following settings:
 - `vscode-fecs-plugin.cssLikeExt`: Specified 'css like' files extension that can use fecs.
 - `vscode-fecs-plugin.htmlLikeExt`: Specified 'html like' files extension that can use fecs.
 - `vscode-fecs-plugin.vueLikeExt`: Specified 'vue like' files extension that can use fecs.
+- `vscode-fecs-plugin.supportByGitDomainTest`: Only support git repositories that remote url match this configuration item.
 - `vscode-fecs-plugin.excludePaths`: Uncheck the files in these directory.
 - `vscode-fecs-plugin.excludeFileNameSuffixes`: Uncheck the files with these suffixes.
 - `vscode-fecs-plugin.searchUrl`: Search engine url, replace query by `${query}`, used to search for error rule.

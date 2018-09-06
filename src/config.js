@@ -4,7 +4,7 @@
  * @description ..
  * @create data: 2018-05-31 17:07:41
  * @last modified by: yanglei07
- * @last modified time: 2018-06-27 19:40:3
+ * @last modified time: 2018-09-06 13:39:37
  */
 
 /* global  */
@@ -25,6 +25,7 @@ const config = {
     errorColor: '#f00',
     warningColor: '#ddb700',
     typeMap: new Map(),
+    supportByGitDomainTest: configuration.get('supportByGitDomainTest', []),
     excludePaths: configuration.get('excludePaths', []),
     excludeFileNameSuffixes: configuration.get('excludeFileNameSuffixes', []),
     searchUrl: configuration.get('searchUrl', ''),
