@@ -3,8 +3,8 @@
  * @author: yanglei07
  * @description ..
  * @create data: 2018-06-02 16:29:2
- * @last modified by: yanglei07
- * @last modified time: 2018-07-14 17:37:59
+ * @last modified by: l5oo00
+ * @last modified time: 2018-10-16 15:13:58
  */
 
 /* global  */
@@ -143,9 +143,9 @@ class Document {
     splitVueLikeCode(code, filePath, needWrapCode = false) {
         const vscDocument = this.vscDocument;
 
-        const templateReg = /(<template(.*)>)([\s\S]+)(<\/template>)/g;
-        const scriptReg = /(<script(.*)>)([\s\S]+)(<\/script>)/g;
-        const styleReg = /(<style(.*)>)([\s\S]+)(<\/style>)/g;
+        const templateReg = /(<template(.*)>)([\s\S]+?)(<\/template>)/g;
+        const scriptReg = /(<script(.*)>)([\s\S]+?)(<\/script>)/g;
+        const styleReg = /(<style(.*)>)([\s\S]+?)(<\/style>)/g;
 
         const blocks = [];
 
