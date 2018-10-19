@@ -100,6 +100,10 @@ class Document {
                     errors.forEach(err => {
                         err.line += diff;
                         err.endLine += diff;
+                        if (block.indent) {
+                            err.column += block.indent;
+                            err.endColumn += block.indent;
+                        }
                     });
                     return errors;
                 })
@@ -117,13 +121,27 @@ class Document {
     formatVueLike(code, filePath) {
         const blocks = this.splitVueLikeCode(code, filePath);
 
-        const task = blocks.map(
-            block => linter.format(block.content, block.filePath)
-                .then(formatContent => {
-                    block.formatContent = formatContent;
-                    return block;
-                })
-        );
+        const task = blocks
+            .filter(block => block.tagName !== 'template') // template 标签里的内容格式化有问题， 这里跳过不处理
+            .map(
+                block => linter.format(block.content, block.filePath)
+                    .then(formatContent => {
+                        if (block.indent && block.indentChar) {
+                            let join = '\n';
+                            if (/\r\n/.test(formatContent)) {
+                                join = '\r\n';
+                            }
+
+                            formatContent = formatContent
+                                .split(join)
+                                .map(line => line ? block.indentChar.repeat(block.indent) + line : '')
+                                .join(join);
+
+                        }
+                        block.formatContent = formatContent;
+                        return block;
+                    })
+            );
 
         return Promise.all(task).then(blockList => {
             let index = 0;
@@ -143,7 +161,8 @@ class Document {
     splitVueLikeCode(code, filePath, needWrapCode = false) {
         const vscDocument = this.vscDocument;
 
-        const templateReg = /(<template(.*)>)([\s\S]+?)(<\/template>)/g;
+        // template下面可能会嵌套， 这里使用贪婪匹配
+        const templateReg = /(<template(.*)>)([\s\S]+)(<\/template>)/g;
         const scriptReg = /(<script(.*)>)([\s\S]+?)(<\/script>)/g;
         const styleReg = /(<style(.*)>)([\s\S]+?)(<\/style>)/g;
 
@@ -159,13 +178,49 @@ class Document {
             }
         }
 
+        function stripIndent(content) {
+            let join = '\n';
+            if (/\r\n/.test(content)) {
+                join = '\r\n';
+            }
+
+            let lines = content.split(join);
+            let indent = -1;
+            let indentChar = '';
+            let code = content;
+
+            lines.forEach(line => {
+                let newLine = line.trim();
+                if (!newLine) {
+                    return;
+                }
+
+                let index = line.indexOf(newLine);
+
+                if (!indentChar && index > 0) {
+                    indentChar = line[0];
+                }
+
+                indent = indent === -1 ? index : Math.min(indent, index);
+            });
+
+            if (indent > 0) {
+                code = lines.map(line => line.substr(indent)).join(join);
+            }
+
+            if (indent === -1) {
+                indent = 0;
+            }
+            return {indent, code, indentChar};
+        }
+
         // 根据正则索引获取行号， 行号从 0 开始
         function getLineIndexByOffset(offset) {
             const position = vscDocument.positionAt(offset);
             const line = vscDocument.lineAt(position);
             return line.lineNumber;
         }
-        function exec(reg, defaultLang) {
+        function exec(reg, defaultLang, tagName) {
             let m = reg.exec(code);
             let index = 0;
             while (m) {
@@ -175,6 +230,8 @@ class Document {
                 const codeEnd = codeBegin + content.length;
                 let lang = /\slang=['"](.*)['"]/.exec(m[2]) || [];
                 lang = lang[1] || defaultLang;
+
+                const {indent, code: newCode, indentChar} = stripIndent(content);
 
                 const mockFilePath = filePath + '-' + defaultLang + '-' + index + '.' + lang;
 
@@ -187,8 +244,11 @@ class Document {
                         lineBeginIndex: getLineIndexByOffset(codeBegin),
                         lineEndIndex: getLineIndexByOffset(codeEnd),
                         wrapLineCount: 0,
-                        content,
-                        lang
+                        content: newCode,
+                        indent,
+                        indentChar,
+                        lang,
+                        tagName
                     };
 
                     if (needWrapCode) {
@@ -202,9 +262,14 @@ class Document {
             }
         }
 
-        exec(templateReg, 'html');
-        exec(scriptReg, 'js');
-        exec(styleReg, 'css');
+        exec(templateReg, 'html', 'template');
+        exec(scriptReg, 'js', 'script');
+        exec(styleReg, 'css', 'style');
+
+        // 按顺序排序， 主要是为了后续格式化后需要按顺序做拼接
+        blocks.sort((a, b) => {
+            return a.codeBegin - b.codeBegin;
+        });
 
         return blocks;
     }
