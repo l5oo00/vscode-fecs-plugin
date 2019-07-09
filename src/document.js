@@ -228,12 +228,18 @@ class Document {
                 const content = m[3];
                 const codeBegin = m.index + m[1].length;
                 const codeEnd = codeBegin + content.length;
-                let lang = /\slang=['"](.*)['"]/.exec(m[2]) || [];
-                lang = lang[1] || defaultLang;
+                let lang = /\slang=(['"])(.*)\1/.exec(m[2]) || [];
+                let type = /\stype=(['"])(.*)\1/.exec(m[2]) || [];
+
+                lang = lang[2];
+
+                if (!lang && !type[2]) {
+                    lang = defaultLang;
+                }
 
                 const {indent, code: newCode, indentChar} = stripIndent(content);
 
-                const mockFilePath = filePath + '-' + defaultLang + '-' + index + '.' + lang;
+                const mockFilePath = filePath + '-' + defaultLang + '-' + index + '.' + (lang || 'undefinedext');
 
                 if (isSupportFilePath(mockFilePath)) {
 

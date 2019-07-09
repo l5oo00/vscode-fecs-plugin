@@ -36,6 +36,27 @@ const languageMap = {
     vue: 'vue',
     san: 'san'
 };
+
+function getExtByTypeMap(fileName) {
+    let arr = fileName.split('.');
+
+    // 过滤  .xxx 这种的文件名
+    if (!arr[0]) {
+        arr = arr.slice(1);
+    }
+
+    arr.shift();
+
+    while (arr.length > 0) {
+        let ext = arr.join('.');
+        if (config.typeMap.has(ext)) {
+            return ext;
+        }
+        arr.shift();
+    }
+    return '';
+}
+
 function getFileExtName(document) {
 
     let fileName = '';
@@ -48,13 +69,10 @@ function getFileExtName(document) {
         languageId = document.languageId;
     }
 
-    let ext = nodePathLib.extname(fileName).substr(1);
+    let ext = getExtByTypeMap(nodePathLib.basename(fileName)) || nodePathLib.extname(fileName).substr(1);
 
     // 没有扩展名的文件， 根据语言来识别
-    if (ext) {
-        ext = languageMap[ext] || ext;
-    }
-    else if (languageId) {
+    if (!ext && languageId) {
         ext = languageMap[languageId] || '';
     }
     return ext;

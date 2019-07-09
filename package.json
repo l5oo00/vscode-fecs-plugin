@@ -89,6 +89,7 @@
           "default": [
             "vue",
             "san",
+            "atom.html",
             "atom"
           ],
           "title": "Fecs files with these extensions",
