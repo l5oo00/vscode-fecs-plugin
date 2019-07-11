@@ -19,6 +19,11 @@ const errLib = require('./error.js');
 
 const fecs = require('fecs');
 
+let {ESNEXT_RULES} = require('fecs/lib/js/esnext');
+ESNEXT_RULES.push(
+    'prefer-arrow-callback'
+);
+
 function getLinterType(filePath) {
     const ext = nodePathLib.extname(filePath).substr(1);
     if (!ext) {
