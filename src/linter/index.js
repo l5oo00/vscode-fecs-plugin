@@ -10,16 +10,18 @@
 /* global  */
 
 'use strict';
+const config = require('../config.js');
 const util = require('../util.js');
 
 const fecs = require('./fecs.js');
 const tslint = require('./tslint.js');
+const tseslint = require('./tseslint.js');
 
 const linterMap = new Map();
 function addLinter(extList, linter) {
     extList.forEach(ext => linterMap.set(ext, linter));
 }
-addLinter(['ts', 'tsx'], tslint);
+addLinter(['ts', 'tsx'], config.lintTsByEslint ? tseslint : tslint);
 
 function getLinter(filePath) {
     const ext = util.getFileExtName(filePath);

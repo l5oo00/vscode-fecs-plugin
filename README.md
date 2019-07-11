@@ -46,6 +46,11 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 
 - javascript
 - typescript
+
+  > support [tslint](https://palantir.github.io/tslint/) and [typescript-eslint](https://github.com/typescript-eslint/typescript-eslint), which one to use can be determined by configuring `vscode-fecs-plugin.lintTsByEslint`:
+  > - `true`: typescript-eslint
+  > - `false`: tslint
+
 - css
 - less
 - html
@@ -79,6 +84,8 @@ This extension contributes the following settings:
 - `vscode-fecs-plugin.cssLikeExt`: Specified 'css like' files extension that can use fecs.
 - `vscode-fecs-plugin.htmlLikeExt`: Specified 'html like' files extension that can use fecs.
 - `vscode-fecs-plugin.vueLikeExt`: Specified 'vue like' files extension that can use fecs.
+- `vscode-fecs-plugin.lintTsByEslint`: Controls if use eslint to lint typescript.
+- `vscode-fecs-plugin.tseslintConfigPath`: Eslint config file path for typescript, must be an absolute path.
 - `vscode-fecs-plugin.supportByGitDomainTest`: Only support git repositories that remote url match this configuration item.
 - `vscode-fecs-plugin.excludePaths`: Uncheck the files in these directory.
 - `vscode-fecs-plugin.excludeFileNameSuffixes`: Uncheck the files with these suffixes.

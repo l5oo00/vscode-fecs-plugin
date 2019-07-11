@@ -96,11 +96,23 @@
           "type": "array",
           "description": "Specified 'vue like' files extension that can use fecs."
         },
+        "vscode-fecs-plugin.lintTsByEslint": {
+          "default": true,
+          "title": "Lint Typescript By Eslint",
+          "type": "boolean",
+          "description": "Controls if use eslint to lint typescript."
+        },
+        "vscode-fecs-plugin.tseslintConfigPath": {
+          "default": "",
+          "title": "Eslint config file path for typescript",
+          "type": "string",
+          "description": "Eslint config file path for typescript, must be an absolute path."
+        },
         "vscode-fecs-plugin.supportByGitDomainTest": {
-            "default": [],
-            "title": "Only support git repositories that remote url match this configuration item.",
-            "type": "array",
-            "description": "Only support git repositories that remote url match this configuration item."
+          "default": [],
+          "title": "Only support git repositories that remote url match this configuration item.",
+          "type": "array",
+          "description": "Only support git repositories that remote url match this configuration item."
         },
         "vscode-fecs-plugin.excludePaths": {
           "default": [
@@ -175,11 +187,20 @@
     "@types/mocha": "^2.2.32"
   },
   "dependencies": {
-    "fecs": "^1.6.0",
-    "tslint": "^5.10.0",
-    "tslint-eslint-rules": "^5.3.1",
-    "tslint-react": "^3.6.0",
-    "typescript": "^2.9.2",
-    "vinyl": "^2.0.2"
+    "@typescript-eslint/eslint-plugin": "^1.10.2",
+    "@typescript-eslint/parser": "^1.10.2",
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-mocha": "^5.3.0",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "ajv": "^5.0.0",
+    "fecs": "^1.6.4",
+    "tslint": "^5.18.0",
+    "tslint-eslint-rules": "^5.4.0",
+    "tslint-react": "^4.0.0",
+    "typescript": "^3.5.3",
+    "vinyl": "^2.2.0"
   }
 }
