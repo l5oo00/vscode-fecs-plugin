@@ -6,24 +6,63 @@
 
 /* global  */
 'use strict';
-const osLib = require('os');
-const pathLib = require('path');
-const fsLib = require('fs');
+const nodePathLib = require('path');
+const nodeFsLib = require('fs');
 
 const {CLIEngine} = require('eslint');
 const errLib = require('./error.js');
-const config = require('../config.js');
 
-const baseConfig = require('../../fecsrc/tseslint.json');
+const baseConfig = require('../../fecsrc/tseslint.js');
+
+const tsConfigFilePathCache = [];
+const tsConfigName = 'tsconfig.json';
+
+function getTsConfigFilePath(filePath) {
+    if (tsConfigFilePathCache.length) {
+        for (const item of tsConfigFilePathCache) {
+            if (filePath.startsWith(item)) {
+                return nodePathLib.resolve(item, tsConfigName);
+            }
+        }
+    }
+
+    const pathArr = filePath.split(nodePathLib.sep);
+
+    // 删除当地文件名
+    pathArr.pop();
+
+    while (pathArr.length) {
+        const dirPath = pathArr.join(nodePathLib.sep);
+        const configPath = nodePathLib.resolve(dirPath, tsConfigName);
+        if (nodeFsLib.existsSync(configPath)) {
+            tsConfigFilePathCache.push(dirPath);
+            return configPath;
+        }
+
+        pathArr.pop();
+    }
+
+    return '';
+}
 
 function lint(code, filePath, fix = false) {
     let options = {
         baseConfig,
-        useEslintrc: false,
         fix
     };
-    if (config.tseslintConfigPath && fsLib.existsSync(config.tseslintConfigPath)) {
-        options.configFile = config.tseslintConfigPath;
+
+    const tsConfigFilePath = getTsConfigFilePath(filePath);
+    if (tsConfigFilePath) {
+        options.parserOptions = {
+            ...(options.parserOptions || {}),
+            project: tsConfigFilePath
+        };
+
+        // 以下代码没用， 暂时注释
+        // options.settings = options.settings || {};
+        // options.settings['import/resolver'] = options.settings['import/resolver'] || {};
+        // options.settings['import/resolver']['typescript'] = options.settings['import/resolver']['typescript'] || {};
+        // options.settings['import/resolver']['typescript']['directory'] = tsConfigFilePath;
     }
     const eslint = new CLIEngine(options);
     let report = eslint.executeOnText(code, filePath);

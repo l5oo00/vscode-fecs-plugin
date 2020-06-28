@@ -20,7 +20,7 @@ Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5o
 
 - Default enable check
   - can be disabled by configuring `vscode-fecs-plugin.disableCheck` to `true`
-- Support [`.fecsrc` & `tslint.json`](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/fecsrc/README.md)
+- Support [`.fecsrc`](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/fecsrc/README.md)
 - Support disable/enable check, run command:
   - `vscode-fecs-plugin: Disable check`
   - `vscode-fecs-plugin: Enable check`
@@ -84,8 +84,6 @@ This extension contributes the following settings:
 - `vscode-fecs-plugin.cssLikeExt`: Specified 'css like' files extension that can use fecs.
 - `vscode-fecs-plugin.htmlLikeExt`: Specified 'html like' files extension that can use fecs.
 - `vscode-fecs-plugin.vueLikeExt`: Specified 'vue like' files extension that can use fecs.
-- `vscode-fecs-plugin.lintTsByEslint`: Controls if use eslint to lint typescript.
-- `vscode-fecs-plugin.tseslintConfigPath`: Eslint config file path for typescript, must be an absolute path.
 - `vscode-fecs-plugin.supportByGitDomainTest`: Only support git repositories that remote url match this configuration item.
 - `vscode-fecs-plugin.excludePaths`: Uncheck the files in these directory.
 - `vscode-fecs-plugin.excludeFileNameSuffixes`: Uncheck the files with these suffixes.

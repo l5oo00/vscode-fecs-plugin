@@ -25,8 +25,6 @@ const config = {
     errorColor: '#f00',
     warningColor: '#ddb700',
     typeMap: new Map(),
-    lintTsByEslint: configuration.get('lintTsByEslint', true),
-    tseslintConfigPath: configuration.get('tseslintConfigPath', ''),
     supportByGitDomainTest: configuration.get('supportByGitDomainTest', []),
     excludePaths: configuration.get('excludePaths', []),
     excludeFileNameSuffixes: configuration.get('excludeFileNameSuffixes', []),

@@ -96,18 +96,6 @@
           "type": "array",
           "description": "Specified 'vue like' files extension that can use fecs."
         },
-        "vscode-fecs-plugin.lintTsByEslint": {
-          "default": true,
-          "title": "Lint Typescript By Eslint",
-          "type": "boolean",
-          "description": "Controls if use eslint to lint typescript."
-        },
-        "vscode-fecs-plugin.tseslintConfigPath": {
-          "default": "",
-          "title": "Eslint config file path for typescript",
-          "type": "string",
-          "description": "Eslint config file path for typescript, must be an absolute path."
-        },
         "vscode-fecs-plugin.supportByGitDomainTest": {
           "default": [],
           "title": "Only support git repositories that remote url match this configuration item.",
@@ -187,20 +175,15 @@
     "@types/mocha": "^2.2.32"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^1.10.2",
-    "@typescript-eslint/parser": "^1.10.2",
-    "eslint": "^5.16.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-mocha": "^5.3.0",
-    "eslint-plugin-node": "^9.1.0",
-    "eslint-plugin-promise": "^4.1.1",
-    "eslint-plugin-standard": "^4.0.0",
+    "@ecomfe/eslint-config": "^4.0.0",
+    "@typescript-eslint/eslint-plugin": "^3.4.0",
+    "@typescript-eslint/parser": "^3.4.0",
     "ajv": "^5.0.0",
+    "eslint": "^5.16.0",
+    "eslint-import-resolver-typescript": "^2.0.0",
+    "eslint-plugin-import": "^2.22.0",
     "fecs": "^1.6.4",
-    "tslint": "^5.18.0",
-    "tslint-eslint-rules": "^5.4.0",
-    "tslint-react": "^4.0.0",
-    "typescript": "^3.5.3",
+    "typescript": "^3.9.5",
     "vinyl": "^2.2.0"
   }
 }

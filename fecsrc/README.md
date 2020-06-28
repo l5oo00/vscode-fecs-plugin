@@ -8,18 +8,6 @@
 
 > 直接将文件 copy 到期望的目录下， 并改名为 `.fecsrc` 即可。
 
-## `tslint.json`
+## `tseslint.js`
 
-包含以下规则：
-
-- [tslint](https://palantir.github.io/tslint/rules/)
-- [tslint-eslint-rules](https://github.com/buzinas/tslint-eslint-rules)
-- [tslint-react](https://github.com/palantir/tslint-react)
-
-> 直接将 [tslint.json](./tslint.json) 文件 copy 到期望的目录下即可。
-
-## `tseslint.json`
-
-使用 eslint 来检查 typescript (_详情参考[typescript-eslint](https://github.com/typescript-eslint/typescript-eslint)_)， 这是对应的配置文件。
-
-欢迎提 [issue](https://github.com/l5oo00/vscode-fecs-plugin/issues/new) 或 pr 来更新规则~
+使用 eslint 来检查 typescript (_详情参考[typescript-eslint](https://github.com/typescript-eslint/typescript-eslint)_)， 这是对应的配置文件，直接使用 [@ecomfe/eslint-config](https://github.com/ecomfe/eslint-config)。
