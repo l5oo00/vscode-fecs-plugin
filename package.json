@@ -175,7 +175,6 @@
     "@types/mocha": "^2.2.32"
   },
   "dependencies": {
-    "@ecomfe/eslint-config": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "^3.4.0",
     "@typescript-eslint/parser": "^3.4.0",
     "ajv": "^5.0.0",
