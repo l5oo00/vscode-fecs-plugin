@@ -13,9 +13,8 @@ const vscode = require('vscode');
 const documentLib = require('./document.js');
 const {createDiagnostic, showDiagnostics, clearDiagnostics} = require('./diagnostic.js');
 const {createDecoration, showDecoration} = require('./decoration.js');
-const addDisableComment = require('./comment.js').addDisableComment;
 const statusBar = require('./statusbar.js');
-const {log, getSelectionPosition} = require('./util.js');
+const {log, getSelectionPosition, isSupportEditor} = require('./util.js');
 const config = require('./config.js');
 
 const {window, Position, Range} = vscode;
@@ -154,7 +153,7 @@ class Editor {
         errors.forEach(err => {
             const lineIndex = err.line - 1;
             err.msg = err.message.trim();
-            this.diagnostics.push(createDiagnostic(err));
+            this.diagnostics.push(createDiagnostic(err, this));
             this.errorMap.set(lineIndex, (this.errorMap.get(lineIndex) || []).concat(err));
         });
 
@@ -182,10 +181,6 @@ class Editor {
             showDiagnostics(this);
             statusBar.showErrorMessage(this);
         }
-    }
-
-    addDisableComment(forEntireSelectionBlock = false) {
-        addDisableComment(this, forEntireSelectionBlock);
     }
 
     getViewRuleUrl() {
@@ -296,3 +291,19 @@ exports.switch = vscEditor => {
         editor.renderErrors();
     }
 };
+
+/**
+ * 检查所有窗口及内容可见的文件， 一般数量和编辑器拆分数量一致
+ *
+ * @param {ExtensionContext} context 扩展上下文
+ */
+function checkAllVisibleTextEditor() {
+    window.visibleTextEditors.forEach(e => {
+        if (!isSupportEditor(e)) {
+            return;
+        }
+
+        exports.wrap(e).check();
+    });
+}
+exports.checkAllVisibleTextEditor = checkAllVisibleTextEditor;

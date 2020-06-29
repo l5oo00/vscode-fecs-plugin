@@ -29,19 +29,22 @@ function initBlock(beginLine, endLine = null) {
 }
 
 // 支持自动添加注释的 linter
-const supportLinterSet = new Set(['eslint', 'tslint']);
+const supportLinterSet = new Set(['eslint']);
 function isSupportLinter(linterType) {
     return supportLinterSet.has(linterType);
 }
+exports.isSupportLinter = isSupportLinter;
+
+function hasError(editor) {
+    return editor.errorMap.size > 0;
+}
+
 function formatComment(linterType, rules, enableOrDisable) {
     function eslint(rules, enableOrDisable) {
         return '/* eslint-' + enableOrDisable + ' ' + rules.join(',') + ' */';
     }
-    function tslint(rules, enableOrDisable) {
-        return '/* tslint:' + enableOrDisable + ':' + rules.join(' ') + ' */';
-    }
     const map = {
-        eslint, tslint
+        eslint
     };
 
     return map[linterType](rules, enableOrDisable);
@@ -99,12 +102,11 @@ function getErrorLineBlocks(editor) {
     return {blocks, errorLineCount, allRules};
 }
 
-function getErrorLineBlock(editor) {
+function getErrorLineBlock(editor, startLineNumber, stopLineNumber) {
     const errorMap = editor.errorMap;
-    const {start, stop} = util.getSelectionPosition(editor.vscEditor.selection);
 
-    const startLine = editor.doc.vscDocument.lineAt(start);
-    const stopLine = editor.doc.vscDocument.lineAt(stop);
+    const startLine = editor.doc.vscDocument.lineAt(startLineNumber);
+    const stopLine = editor.doc.vscDocument.lineAt(stopLineNumber);
 
     const block = initBlock(startLine, stopLine);
     const blocks = [block];
@@ -146,21 +148,7 @@ function getErrorLineBlock(editor) {
     return {blocks, errorLineCount, allRules: block.rules};
 }
 
-exports.addDisableComment = (editor, forEntireSelectionBlock = false) => {
-
-    const errorMap = editor.errorMap;
-    if (errorMap.size === 0) {
-        return;
-    }
-
-    let blockData = null;
-
-    if (forEntireSelectionBlock) {
-        blockData = getErrorLineBlock(editor);
-    }
-    else {
-        blockData = getErrorLineBlocks(editor);
-    }
+function addDisableComment(editor, blockData) {
     const {errorLineCount, blocks, allRules} = blockData;
 
     if (errorLineCount === 0) {
@@ -197,4 +185,48 @@ exports.addDisableComment = (editor, forEntireSelectionBlock = false) => {
             editBuilder.insert(stop, enable);
         }
     });
+}
+
+/**
+ * 将选中的代码视为一个整体， 在其前后分别插入涉及的所有规则的  禁用/启用 注释
+ *
+ * @param {Editor} editor editor 实例
+ */
+exports.addDisableCommentForSelectedBlock = editor => {
+    if (!hasError(editor)) {
+        return;
+    }
+
+    const {start, stop} = util.getSelectionPosition(editor.vscEditor.selection);
+    const blockData = getErrorLineBlock(editor, start, stop);
+    addDisableComment(editor, blockData);
+};
+
+/**
+ * 将选中的代码根据错误提示分割为多个块， 原则是连续报错的代码行会被合并为一个块，否则分割为多个块
+ * 在每一块的前后分别插入该块涉及的所有规则的  禁用/启用 注释
+ *
+ * @param {Editor} editor editor 实例
+ */
+exports.addDisableCommentForSelectedBlocks = editor => {
+    if (!hasError(editor)) {
+        return;
+    }
+    const blockData = getErrorLineBlocks(editor);
+    addDisableComment(editor, blockData);
+};
+
+/**
+ * 将选中的代码根据错误提示分割为多个块， 原则是连续报错的代码行会被合并为一个块，否则分割为多个块
+ * 在每一块的前后分别插入该块涉及的所有规则的  禁用/启用 注释
+ *
+ * @param {Editor} editor editor 实例
+ * @param {number} lineNumber 行号
+ */
+exports.addDisableCommentForLine = (editor, lineNumber) => {
+    if (!hasError(editor)) {
+        return;
+    }
+    const blockData = getErrorLineBlock(editor, lineNumber, lineNumber);
+    addDisableComment(editor, blockData);
 };

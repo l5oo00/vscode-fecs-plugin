@@ -1,0 +1,7 @@
+{
+    "eslint": {
+        "rules": {
+            "fecs-no-require": "off"
+        }
+    }
+}

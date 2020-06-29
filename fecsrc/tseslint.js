@@ -2,6 +2,7 @@
  * @file: tseslint.js
  * @description ..
  */
+// @todo 规则梳理
 const config = {
     extends: [
         require.resolve('@ecomfe/eslint-config'),
@@ -13,7 +14,9 @@ const config = {
 
         'import/extensions': ['error', {
             json: 'always'
-        }]
+        }],
+
+        '@typescript-eslint/member-ordering': 'off'
     },
 
     settings: {

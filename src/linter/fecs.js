@@ -146,6 +146,7 @@ function ignoreGlobalEslintDisalbe(code, filePath) {
     // 将含有 全局 disable 注释的那一行也标记位错误
     let lastLineOffset = 0;
     let lastLineIndex = 1;
+    // @todo 正则不严谨
     code = code.replace(/(\/\*\s*)eslint-disable(\s\*\/)|\n/g, (m, prefix, suffix, offset) => {
         if (m === '\n') {
             lastLineIndex++;
