@@ -10,9 +10,10 @@ const nodePathLib = require('path');
 const nodeFsLib = require('fs');
 
 const {CLIEngine} = require('eslint');
-const errLib = require('./error.js');
 
 const baseConfig = require('../../fecsrc/tseslint.js');
+const {ignoreGlobalEslintDisalbe} = require('../util.js');
+const errLib = require('./error.js');
 
 const tsConfigFilePathCache = [];
 const tsConfigName = 'tsconfig.json';
@@ -70,10 +71,12 @@ function lint(code, filePath, fix = false) {
 
 }
 
-exports.check = (code, filePath) => {
+exports.check = (oriCode, filePath) => {
+    const {code, disableErrors} = ignoreGlobalEslintDisalbe(oriCode, filePath);
+
     const result = lint(code, filePath);
 
-    const errors = result.messages.map(msg => {
+    const errors = (result.messages.concat(disableErrors)).map(msg => {
         return errLib.format(
             msg.line,
             msg.column,
@@ -89,7 +92,8 @@ exports.check = (code, filePath) => {
     return Promise.resolve(errors);
 };
 
-exports.format = (code, filePath) => {
+exports.format = (oriCode, filePath) => {
+    const {code} = ignoreGlobalEslintDisalbe(oriCode, filePath);
     const result = lint(code, filePath, true);
     return Promise.resolve(result.output || code);
 };

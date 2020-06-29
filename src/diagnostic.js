@@ -9,14 +9,23 @@
 const {languages, Diagnostic, Position, Range, CodeActionKind, CodeAction} = require('vscode');
 const {isSupportLinter} = require('./comment.js');
 
+const diagnosticCollection = languages.createDiagnosticCollection('fecs');
 
 class AddDisableComment {
     provideCodeActions(document, range, context, token) {
-        return context.diagnostics.map(diagnostic => this.createCodeAction(diagnostic));
+        return context.diagnostics
+            .filter(diagnostic => {
+                let has = false;
+                diagnosticCollection.forEach((uri, diagnostics) => {
+                    has = has || diagnostics.includes(diagnostic);
+                });
+                return has;
+            })
+            .map(diagnostic => this.createCodeAction(diagnostic));
     }
 
     createCodeAction(diagnostic) {
-        const action = new CodeAction('Ignore this error', CodeActionKind.QuickFix);
+        const action = new CodeAction(`忽略这行报错： ${diagnostic.message}`, CodeActionKind.QuickFix);
 
         action.command = {
             command: 'vscode-fecs-plugin.add-disable-rule-comment-for-line',
@@ -47,7 +56,6 @@ function registerCodeActionProvider(editor) {
 }
 
 
-const diagnosticCollection = languages.createDiagnosticCollection('fecs');
 
 function createDiagnostic(data, editor) {
 

@@ -13,11 +13,11 @@ const Readable = require('stream').Readable;
 const nodePathLib = require('path');
 
 const File = require('vinyl');
+const fecs = require('fecs');
 
 const config = require('../config.js');
+const {ignoreGlobalEslintDisalbe} = require('../util.js');
 const errLib = require('./error.js');
-
-const fecs = require('fecs');
 
 let {ESNEXT_RULES} = require('fecs/lib/js/esnext');
 ESNEXT_RULES.push(
@@ -127,47 +127,7 @@ function isNoES6(code, filePath) {
     return !isES6;
 }
 
-/**
- * 忽略全局 eslint-disable
- *
- * @param {string} code 源码字符串
- * @param {string} filePath 文件路径
- * @return {Object} 返回值
- */
-function ignoreGlobalEslintDisalbe(code, filePath) {
-
-    const disableErrors = [];
-
-    // 非 .js 文件不做处理， 直接返回
-    if (!config.ignoreGlobalEslintDisalbe || !/\.js$/.test(filePath)) {
-        return {code, disableErrors};
-    }
-
-    // 将含有 全局 disable 注释的那一行也标记位错误
-    let lastLineOffset = 0;
-    let lastLineIndex = 1;
-    // @todo 正则不严谨
-    code = code.replace(/(\/\*\s*)eslint-disable(\s\*\/)|\n/g, (m, prefix, suffix, offset) => {
-        if (m === '\n') {
-            lastLineIndex++;
-            lastLineOffset = offset;
-            return m;
-        }
-        const err = {
-            message: '大神， 求不要这么暴力的 eslint-disable , 可怜可怜后面的接盘侠吧~',
-            rule: 'no-eslint-global-disable',
-            line: lastLineIndex,
-            column: offset - lastLineOffset,
-            severity: 2
-        };
-        disableErrors.push(err);
-        return prefix + 'eslint-enable' + suffix;
-    });
-    return {code, disableErrors};
-}
-
 function prepareFecsConfig(oriCode, filePath) {
-
     const {code, disableErrors} = ignoreGlobalEslintDisalbe(oriCode, filePath);
 
     const fileStream = createCodeStream(code, filePath);

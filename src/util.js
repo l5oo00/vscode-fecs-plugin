@@ -163,3 +163,48 @@ function isVueLike(extName) {
     return config.typeMap.get(extName) === 'vue';
 }
 exports.isVueLike = isVueLike;
+
+function isJsLike(extName) {
+    return config.typeMap.get(extName) === 'js';
+}
+exports.isJsLike = isJsLike;
+
+/**
+ * 忽略全局 eslint-disable
+ *
+ * @param {string} code 源码字符串
+ * @param {string} filePath 文件路径
+ * @return {Object} 返回值
+ */
+function ignoreGlobalEslintDisalbe(code, filePath) {
+
+    const disableErrors = [];
+    const ext = getExtByTypeMap(filePath);
+
+    // 非 .js 文件不做处理， 直接返回
+    if (!config.ignoreGlobalEslintDisalbe || !ext || !isJsLike(ext)) {
+        return {code, disableErrors};
+    }
+
+    // 将含有 全局 disable 注释的那一行也标记位错误
+    let lastLineOffset = 0;
+    let lastLineIndex = 1;
+    code = code.replace(/(\/\*\s*)eslint-disable(\s*\*\/)|\n/g, (m, prefix, suffix, offset) => {
+        if (m === '\n') {
+            lastLineIndex++;
+            lastLineOffset = offset;
+            return m;
+        }
+        const err = {
+            message: '大神， 求不要这么暴力的 eslint-disable , 可怜可怜后面的接盘侠吧~',
+            rule: 'no-eslint-global-disable',
+            line: lastLineIndex,
+            column: offset - lastLineOffset,
+            severity: 2
+        };
+        disableErrors.push(err);
+        return prefix + 'eslint-enable' + suffix;
+    });
+    return {code, disableErrors};
+}
+exports.ignoreGlobalEslintDisalbe = ignoreGlobalEslintDisalbe;
