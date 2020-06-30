@@ -46,6 +46,12 @@ function getTsConfigFilePath(filePath) {
     return '';
 }
 
+function execLint(options, code, filePath) {
+    const eslint = new CLIEngine(options);
+    let report = eslint.executeOnText(code, filePath);
+    return report.results[0];
+}
+
 function lint(code, filePath, fix = false) {
     let options = {
         baseConfig,
@@ -58,16 +64,18 @@ function lint(code, filePath, fix = false) {
             ...(options.parserOptions || {}),
             project: tsConfigFilePath
         };
-
-        // 以下代码没用， 暂时注释
-        // options.settings = options.settings || {};
-        // options.settings['import/resolver'] = options.settings['import/resolver'] || {};
-        // options.settings['import/resolver']['typescript'] = options.settings['import/resolver']['typescript'] || {};
-        // options.settings['import/resolver']['typescript']['directory'] = tsConfigFilePath;
     }
-    const eslint = new CLIEngine(options);
-    let report = eslint.executeOnText(code, filePath);
-    return report.results[0];
+
+    try {
+        return execLint(options, code, filePath);
+    }
+    catch (ex) {
+        // 用户自定义的  .eslintrc 文件中有其他 plugin 时， 会失败， 这里修正下， 改为不使用用户的 .eslintrc 文件
+        if (ex.message && ex.message.toLowerCase().includes('failed to load plugin ')) {
+            options.useEslintrc = false;
+            return execLint(options, code, filePath);
+        }
+    }
 
 }
 
