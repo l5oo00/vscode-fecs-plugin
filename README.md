@@ -1,97 +1,90 @@
 # vscode-fecs-plugin
 
-A better fecs extension for vscode. This is inspired by [SublimeLinter-contrib-fecs](https://github.com/robbenmu/SublimeLinter-contrib-fecs) and [VScode-fecs](https://github.com/MarxJiao/VScode-fecs).
+一个凑合能用的 [FECS](https://fecs.baidu.com/) 的 vscode 扩展。 致敬 [SublimeLinter-contrib-fecs](https://github.com/robbenmu/SublimeLinter-contrib-fecs) 和 [VScode-fecs](https://github.com/MarxJiao/VScode-fecs)。
 
-## Install
+## 安装
 
-Install [this extension](https://marketplace.visualstudio.com/items?itemName=l5oo00.vscode-fecs-plugin): `ext install vscode-fecs-plugin`
+打开 [这个页面](https://marketplace.visualstudio.com/items?itemName=l5oo00.vscode-fecs-plugin) 点击 **Install** 按钮就行安装，  或在 vscode 里的命令面板输入 `ext install vscode-fecs-plugin` 进行安装。
 
-## Features
+## 功能
 
+### Fecs 格式化
 
-### Fecs Format
+- 执行命令: `vscode-fecs-plugin: Format`
+  - 快捷键: `cmd+shift+r`
+- 支持保存时自动格式化
+  - 配置 `vscode-fecs-plugin.autoFormatOnSave` to `true` 即可启用
 
-- Run command: `vscode-fecs-plugin: Format`
-  - shortcuts: `cmd+shift+r`
-- Support auto format on save.
-  - can be enable by configuring `vscode-fecs-plugin.autoFormatOnSave` to `true`
+### Fecs 检查
 
-### Fecs Check
-
-- Default enable check
-  - can be disabled by configuring `vscode-fecs-plugin.disableCheck` to `true`
-- Support [`.fecsrc`](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/fecsrc/README.md)
-- Support disable/enable check, run command:
+- 默认启用
+  - 可以禁用， 配置 `vscode-fecs-plugin.disableCheck` to `true` 即可
+- 支持 [`.fecsrc`](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/fecsrc/README.md)
+- 支持临时禁用、启用， 执行命令:
   - `vscode-fecs-plugin: Disable check`
   - `vscode-fecs-plugin: Enable check`
-- Support add inline disable rule comments quickly (*only support `eslint`*)
-  - `vscode-fecs-plugin: Add disable rule comments`
-  - `vscode-fecs-plugin: Add disable rule comments for entire selection block`
-  > **this feature is dangerous, please use it with caution**
-- Support ignore `/* eslint-disalbe */`
-  - can be disabled by configuring `vscode-fecs-plugin.ignoreGlobalEslintDisalbe` to `false`
-- Support search rule in borwser
-  - `vscode-fecs-plugin: Search rule in browser`
-  - click the error message in statusbar
+- 支持对选中的代码块快速添加豁免注释 (*仅支持 `eslint`*)， 若没有选中代码， 则仅处理光标所在行
+  - 执行命令 `vscode-fecs-plugin: Add disable rule comments`: 仅在有错误的行前后添加注释
+  - 执行命令 `vscode-fecs-plugin: Add disable rule comments for entire selection block`: 在整个代码块前后添加注释
+  - 鼠标 hover 到报错处点击**快速修复**， 可以给该行添加豁免注释
+  > **不要滥用！！！**
+- 默认会忽略 `/* eslint-disalbe */`
+  - 可以配置 `vscode-fecs-plugin.ignoreGlobalEslintDisalbe` to `false` 来禁用这个功能
+- 通过以下任一方式可以打开浏览器搜索命中的错误规则
+  - 执行命令 `vscode-fecs-plugin: Search rule in browser`
+  - 点击底部状态栏的错误信息
 - [Demo](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/demo.md)
   ![javascript](images/js.png)
 
-> **Attention:** the gutter icon for this extension will overlap the 'debug break point' icon.
+> **注意:** 若在 vscode 里断点调试代码， 这些小红点、小黄点可能把断点的那个小圆点遮住。
 
-> **Attention:** Sometimes the error message is too long to display in statusbar, maybe you need [this extension](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css) and this script([script/statusBarItemWidthFix.js](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/scripts/statusBarItemWidthFix.js)).
+有时候状态栏的错误信息可能因为太长而被挤下去， 导致看不到， 这时你可以安装[这个插件](https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-custom-css)， 同时使用这个脚本 ([script/statusBarItemWidthFix.js](https://github.com/l5oo00/vscode-fecs-plugin/blob/master/scripts/statusBarItemWidthFix.js)) 来缓解这个问题。
 
-### Support File Type
+### 支持的文件类型
 
-> Use the extension name to do support detection. When the extension name is empty, use the language id set by the current file to detect.
+> 基于文件的扩展名来做支持判断， 若扩展名为空， 以当前文件的 language id 来判断。
 
 - javascript
 - typescript
 
-  > support [tslint](https://palantir.github.io/tslint/) and [typescript-eslint](https://github.com/typescript-eslint/typescript-eslint), which one to use can be determined by configuring `vscode-fecs-plugin.lintTsByEslint`:
-  > - `true`: typescript-eslint
-  > - `false`: tslint
+  > 使用 [typescript-eslint](https://github.com/typescript-eslint/typescript-eslint) 来做检测
 
 - css
 - less
 - html
-- vue like file
+- 各种 Vue 单文件组件格式的文件：
   - vue
   - san
   - atom
-  - any other vue like files ...
 
-### Support by test the remote url of the git repository
+可以通过 `jsLikeExt`, `cssLikeExt`, `htmlLikeExt`, `vueLikeExt` 等配置来支持更多的文件格式， 具体参考下面的**配置说明**。
 
-By configuring `supportByGitDomainTest` , this plugin can only support specific git repositories whose remote repository URLs must match this configuration item.
+### 支持仅针对特定的 git 仓库启用此插件
 
-example:
+若配置了 `supportByGitDomainTest` 字段， 则此插件只会对 git 仓库的文件进行检测， 且仓库的远程 url 必须匹配这个配置项里的其中一项。
 
-- `supportByGitDomainTest: ['.github.com']`: only support the repositories that host on github.
-- `supportByGitDomainTest: ['.gitlab.com']`: only support the repositories that host on gitlab.
-- `supportByGitDomainTest: ['.github.com', '.gitlab.com']`: only support the repositories that host on github or gitlab.
+示例:
 
+- `supportByGitDomainTest: ['.github.com']`: 只对 github 的代码库启用
+- `supportByGitDomainTest: ['.gitlab.com']`: 只对 gitlab 的代码库启用
+- `supportByGitDomainTest: ['.github.com', '.gitlab.com']`: 同时对 github/gitlab 的代码库启用
 
+## 配置说明
 
-## Extension Settings
+插件支持以下配置项：
 
-This extension contributes the following settings:
+- `vscode-fecs-plugin.disableCheck`: 是否默认禁用检测， 默认为 `false`, 不禁用
+- `vscode-fecs-plugin.ignoreGlobalEslintDisalbe`: 是否忽略 `/* eslint-disalbe */` 注释， 默认为 `true`, 忽略
+- `vscode-fecs-plugin.en`: 是否使用英文输出错误信息， 默认为 `false`, 使用中文输出
+- `vscode-fecs-plugin.level`: 输出错误级别， 0(_both_), 1(_warn_), 2(_error_), 默认为 0
+- `vscode-fecs-plugin.jsLikeExt`: 配置类似 js 的文件类型
+- `vscode-fecs-plugin.cssLikeExt`: 配置类似 css 的文件类型
+- `vscode-fecs-plugin.htmlLikeExt`: 配置类似 html 的文件类型
+- `vscode-fecs-plugin.vueLikeExt`: 配置类似 vue 的文件类型
+- `vscode-fecs-plugin.supportByGitDomainTest`: 支持仅针对特定的 git 仓库启用此插件
+- `vscode-fecs-plugin.excludePaths`: 不做检查的代码路径， 比如 `dist`, `output` 等
+- `vscode-fecs-plugin.excludeFileNameSuffixes`: 不做检查的文件名后缀， 比如 `.min.js` 等
+- `vscode-fecs-plugin.searchUrl`: 发起搜索的 url， 会把其中的 `${query}` 替换为命中的规则
+- `vscode-fecs-plugin.autoFormatOnSave`: 是否在保存文件时自动格式化， 默认为 `false`, 不保存
 
-- `vscode-fecs-plugin.disableCheck`: Controls if disable check by default when vscode start/restart/reload.
-- `vscode-fecs-plugin.ignoreGlobalEslintDisalbe`: Controls if ignore `/* eslint-disalbe */` in js file.
-- `vscode-fecs-plugin.en`: Controls if use English in output.
-- `vscode-fecs-plugin.level`: Fecs check level. Value is 0 1 or 2 .
-- `vscode-fecs-plugin.jsLikeExt`: Specified 'js like' files extension that can use fecs.
-- `vscode-fecs-plugin.cssLikeExt`: Specified 'css like' files extension that can use fecs.
-- `vscode-fecs-plugin.htmlLikeExt`: Specified 'html like' files extension that can use fecs.
-- `vscode-fecs-plugin.vueLikeExt`: Specified 'vue like' files extension that can use fecs.
-- `vscode-fecs-plugin.supportByGitDomainTest`: Only support git repositories that remote url match this configuration item.
-- `vscode-fecs-plugin.excludePaths`: Uncheck the files in these directory.
-- `vscode-fecs-plugin.excludeFileNameSuffixes`: Uncheck the files with these suffixes.
-- `vscode-fecs-plugin.searchUrl`: Search engine url, replace query by `${query}`, used to search for error rule.
-- `vscode-fecs-plugin.autoFormatOnSave`: Controls if auto format on save a document.
-
-### For more information
-
-* [FECS](http://fecs.baidu.com/)
-
-**Enjoy!**
+**加油！**
