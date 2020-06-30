@@ -33,7 +33,9 @@ const config = {
 };
 
 ['js', 'css', 'html', 'vue'].forEach(type => {
-    configuration.get(type + 'LikeExt', []).forEach(ext => {
+    const key = type + 'LikeExt';
+    config[key] = configuration.get(key, []);
+    config[key].forEach(ext => {
         config.typeMap.set(ext, type);
     });
 });

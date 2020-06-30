@@ -94,7 +94,7 @@ class Document {
         const blocks = this.splitVueLikeCode(code, filePath, true);
 
         const task = blocks.map(
-            block => linter.check(block.content, block.filePath)
+            block => linter.check(block.content, block.filePath, {filePath})
                 .then(errors => {
                     const diff = block.lineBeginIndex - block.wrapLineCount;
                     errors.forEach(err => {
@@ -124,7 +124,7 @@ class Document {
         const task = blocks
             .filter(block => block.tagName !== 'template') // template 标签里的内容格式化有问题， 这里跳过不处理
             .map(
-                block => linter.format(block.content, block.filePath)
+                block => linter.format(block.content, block.filePath, {filePath})
                     .then(formatContent => {
                         if (block.indent && block.indentChar) {
                             let join = '\n';

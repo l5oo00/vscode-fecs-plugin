@@ -27,20 +27,20 @@ function getLinter(filePath) {
     return linterMap.get(ext) || fecs;
 }
 
-function check(code, filePath) {
+function check(code, filePath, ctx = {}) {
     try {
         const linter = getLinter(filePath);
-        return linter.check(code, filePath);
+        return linter.check(code, filePath, ctx);
     }
     catch (ex) {
         return Promise.reject(ex);
     }
 }
 
-function format(code, filePath) {
+function format(code, filePath, ctx = {}) {
     try {
         const linter = getLinter(filePath);
-        return linter.format(code, filePath);
+        return linter.format(code, filePath, ctx);
     }
     catch (ex) {
         return Promise.reject(ex);
