@@ -149,10 +149,10 @@ function prepareFecsConfig(oriCode, filePath) {
 
 function check(oriCode = '', filePath = '') {
 
-    const {conf, disableErrors} = prepareFecsConfig(oriCode, filePath);
-    const linterType = getLinterType(filePath);
-
     const p = new Promise(r => {
+        const {conf, disableErrors} = prepareFecsConfig(oriCode, filePath);
+        const linterType = getLinterType(filePath);
+
         fecs.check(conf, (success, json) => {
 
             let errors = (json[0] || {}).errors || [];
@@ -175,10 +175,8 @@ function check(oriCode = '', filePath = '') {
 }
 
 function format(oriCode = '', filePath = '') {
-
-    const {conf} = prepareFecsConfig(oriCode, filePath);
-
     const p = new Promise(r => {
+        const {conf} = prepareFecsConfig(oriCode, filePath);
 
         let bufData = [];
         fecs.format(conf)

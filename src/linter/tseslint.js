@@ -91,28 +91,32 @@ function lint(code, filePath, fix = false, ctx) {
 }
 
 exports.check = (oriCode, filePath, ctx) => {
-    const {code, disableErrors} = ignoreGlobalEslintDisalbe(oriCode, filePath);
+    return new Promise(r => {
+        const {code, disableErrors} = ignoreGlobalEslintDisalbe(oriCode, filePath);
 
-    const result = lint(code, filePath, false, ctx);
+        const result = lint(code, filePath, false, ctx);
 
-    const errors = (result.messages.concat(disableErrors)).map(msg => {
-        return errLib.format(
-            msg.line,
-            msg.column,
-            msg.severity,
-            msg.message,
-            msg.ruleId,
-            'eslint',
-            msg.endLine,
-            msg.endColumn
-        );
+        const errors = (result.messages.concat(disableErrors)).map(msg => {
+            return errLib.format(
+                msg.line,
+                msg.column,
+                msg.severity,
+                msg.message,
+                msg.ruleId,
+                'eslint',
+                msg.endLine,
+                msg.endColumn
+            );
+        });
+
+        r(errors);
     });
-
-    return Promise.resolve(errors);
 };
 
 exports.format = (oriCode, filePath, ctx) => {
-    const {code} = ignoreGlobalEslintDisalbe(oriCode, filePath);
-    const result = lint(code, filePath, true, ctx);
-    return Promise.resolve(result.output || code);
+    return new Promise(r => {
+        const {code} = ignoreGlobalEslintDisalbe(oriCode, filePath);
+        const result = lint(code, filePath, true, ctx);
+        r(result.output || code);
+    });
 };
