@@ -23,7 +23,14 @@ module.exports = {
     }],
     'func-call-spacing': 'off',
     '@typescript-eslint/func-call-spacing': 'error',
-    '@typescript-eslint/indent': 'off',
+    'indent': 'off',
+    '@typescript-eslint/indent': [
+        'error',
+        4,
+        {
+            SwitchCase: 1
+        }
+    ],
     '@typescript-eslint/member-delimiter-style': [
         'error',
         {
