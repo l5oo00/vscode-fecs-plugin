@@ -4,7 +4,7 @@
  */
 
 module.exports = {
-    'import/no-unresolved': 'error',
+    'import/no-unresolved': 'off',
     'import/named': 'error',
     'import/default': 'error',
     'import/namespace': 'off',
